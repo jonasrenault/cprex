@@ -1,0 +1,55 @@
+[tool.poetry]
+name = "cprex"
+version = "0.1.0"
+description = "Chemical Properties Relation Extraction"
+authors = ["Jonas Renault <jonasrenault@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/jonasrenault/cprex#readme"
+repository = "https://github.com/jonasrenault/cprex"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.31.0"
+tqdm = "^4.66.2"
+ratelimit = "^2.2.1"
+spacy = "^3.7.4"
+click = "^8.1.7"
+beautifulsoup4 = "^4.12.3"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.6.2"
+ruff = "^0.3.0"
+black = "^24.2.0"
+mypy = "^1.8.0"
+bandit = "^1.7.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line_length = 90
+target_version = ['py310']
+
+[tool.ruff]
+exclude = [
+    ".venv",
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+]
+lint.ignore = []
+line-length = 90
+lint.select = [
+    "E",
+    "F",
+    "W",
+    "I001",
+]
+src = ["cprex", "tests"]
+
+[mypy]
+files = ["cprex"]
