@@ -24,6 +24,11 @@ black = "^24.2.0"
 mypy = "^1.8.0"
 bandit = "^1.7.7"
 
+
+[tool.poetry.group.stubs.dependencies]
+types-requests = "^2.31.0.20240218"
+types-tqdm = "^4.66.0.20240106"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
