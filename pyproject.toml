@@ -15,6 +15,7 @@ ratelimit = "^2.2.1"
 spacy = "^3.7.4"
 click = "^8.1.7"
 beautifulsoup4 = "^4.12.3"
+pandas = "^2.2.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -28,6 +29,8 @@ bandit = "^1.7.7"
 [tool.poetry.group.stubs.dependencies]
 types-requests = "^2.31.0.20240218"
 types-tqdm = "^4.66.0.20240106"
+pandas-stubs = "^2.2.0.240218"
+types-beautifulsoup4 = "^4.12.0.20240229"
 
 [build-system]
 requires = ["poetry-core"]
