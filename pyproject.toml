@@ -17,6 +17,8 @@ click = "^8.1.7"
 beautifulsoup4 = "^4.12.3"
 pandas = "^2.2.1"
 lxml = "^5.1.0"
+transformers = "^4.38.2"
+grobid-quantities-client = "^0.4.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -64,5 +66,6 @@ lint.select = [
 ]
 src = ["cprex", "tests"]
 
-[mypy]
+[tool.mypy]
 files = ["cprex"]
+exclude = ["^cprex/parser"]

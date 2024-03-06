@@ -1,4 +1,3 @@
-# type: ignore
 import logging
 from dataclasses import dataclass
 
@@ -242,7 +241,8 @@ def join_paragraphs(section: Section):
     """
     Utility method to join sentences in a section's paragraph.
     """
-    section.text = [["".join(p)] for p in section.text]
+    if section.text is not None:
+        section.text = [["".join(p)] for p in section.text]
 
 
 def parse_pdf_to_dict(
@@ -252,7 +252,7 @@ def parse_pdf_to_dict(
         pdf_path, grobid_url=grobid_url, segment_sentences=segment_sentences
     )
     article = convert_article_soup_to_dict(parsed_article)
-    if not segment_sentences:
+    if not segment_sentences and article.sections:
         for section in article.sections:
             join_paragraphs(section)
     return article
