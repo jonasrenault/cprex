@@ -33,7 +33,7 @@ def read_files(file: Path, nlp: Language) -> Iterable[Example]:
         pred = Doc(
             nlp.vocab,
             words=[t.text for t in gold],
-            spaces=[t.whitespace_ for t in gold],
+            spaces=[bool(t.whitespace_) for t in gold],
         )
         pred.ents = gold.ents
         yield Example(pred, gold)

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from grobid_quantities.quantities import QuantitiesAPI
+from grobid_quantities.quantities import QuantitiesAPI  # type: ignore
 from spacy.language import Language
 from spacy.tokens import Doc, Span
 
@@ -148,7 +148,7 @@ class QuantitiesNERComponent:
                 new_ent = Span(doc, start, end, label=entity.label)
                 doc_ents.append(new_ent)
 
-        doc.ents = list(doc.ents) + doc_ents
+        doc.ents = list(doc.ents) + doc_ents  # type: ignore
         return doc
 
 

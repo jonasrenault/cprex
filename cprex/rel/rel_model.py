@@ -73,8 +73,8 @@ def instance_forward(
                 token_indices.extend([i for i in range(ent.start, ent.end)])
                 lengths.append(ent.end - ent.start)
         ents.append(tokvec[token_indices])
-    lengths = cast(Ints1d, model.ops.asarray(lengths, dtype="int32"))
-    entities = Ragged(model.ops.flatten(ents), lengths)
+    lengths_arr = cast(Ints1d, model.ops.asarray(lengths, dtype="int32"))
+    entities = Ragged(model.ops.flatten(ents), lengths_arr)
     pooled, bp_pooled = pooling(entities, is_train)
 
     # Reshape so that pairs of rows are concatenated

@@ -12,7 +12,7 @@ from spacy.vocab import Vocab
 from thinc.api import Model, Optimizer
 from thinc.model import set_dropout_rate
 from thinc.types import Floats2d
-from wasabi import Printer
+from wasabi import Printer  # type: ignore
 
 Doc.set_extension("rel", default={}, force=True)
 msg = Printer()
@@ -91,7 +91,7 @@ class RelationExtractor(TrainablePipe):
                 "can not make any predictions."
             )
         scores = self.model.predict(docs)
-        return self.model.ops.asarray(scores)
+        return self.model.ops.asarray(scores)  # type: ignore
 
     def set_annotations(self, docs: Iterable[Doc], scores: Floats2d) -> None:
         """Modify a batch of `Doc` objects, using pre-computed scores."""
@@ -154,7 +154,7 @@ class RelationExtractor(TrainablePipe):
         self,
         get_examples: Callable[[], Iterable[Example]],
         *,
-        nlp: Language = None,
+        nlp: Language | None = None,
         labels: list[str] | None = None,
     ):
         """Initialize the pipe for training, using a representative set
@@ -198,8 +198,7 @@ class RelationExtractor(TrainablePipe):
                     truths[c, j] = gold_label_dict.get(label, 0)
                 c += 1
 
-        truths = self.model.ops.asarray(truths)
-        return truths
+        return self.model.ops.asarray(truths)  # type: ignore
 
     def score(self, examples: Iterable[Example], **kwargs) -> dict[str, Any]:
         """Score a batch of examples."""

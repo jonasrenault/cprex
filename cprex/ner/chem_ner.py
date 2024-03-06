@@ -4,7 +4,7 @@ import spacy
 from spacy import displacy
 from spacy.language import Language
 from spacy.tokens import Doc, Span
-from transformers import (
+from transformers import (  # type: ignore
     AutoConfig,
     AutoModelForTokenClassification,
     AutoTokenizer,
@@ -126,7 +126,7 @@ class ChemNERComponent:
                 new_ent = Span(doc, start, end, label=entity.label)
                 doc_ents.append(new_ent)
 
-        doc.ents = list(doc.ents) + doc_ents
+        doc.ents = list(doc.ents) + doc_ents  # type: ignore
         return doc
 
 

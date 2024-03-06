@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.model_selection import StratifiedKFold, train_test_split  # type: ignore
 from spacy.language import Language
 from spacy.tokens import Doc, DocBin, Span
 
@@ -17,7 +17,7 @@ MAP_LABELS = {
 
 def parse_text_and_named_entities(
     example: dict[str, Any], nlp: Language, masking: bool = False
-) -> Doc:
+) -> tuple[Doc, set[int], dict[str, int]]:
     """
     Read an example annotated with label-studio with named entities
     and relations, and create a spacy Doc with this text and named
@@ -38,7 +38,7 @@ def parse_text_and_named_entities(
         masking (bool, optional): whether to mask entities. Defaults to True.
 
     Returns:
-        Doc: a spacy Doc
+        tuple[Doc, set[int], dict[str, int]]: a spacy Doc
     """
     # The example text
     text = example["data"]["text"]
@@ -100,7 +100,7 @@ def parse_text_and_named_entities(
             spacy_ents.append(new_ent)
             span_starts.add(start)
             ent_id_to_start[id] = start
-    doc.ents = spacy_ents
+    doc.ents = spacy_ents  # type: ignore
 
     return doc, span_starts, ent_id_to_start
 

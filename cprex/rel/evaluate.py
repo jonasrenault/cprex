@@ -28,7 +28,7 @@ def evaluate_model(trained_pipeline: Path, test_data: Path, print_details: bool)
         pred = Doc(
             nlp.vocab,
             words=[t.text for t in gold],
-            spaces=[t.whitespace_ for t in gold],
+            spaces=[bool(t.whitespace_) for t in gold],
         )
         pred.ents = gold.ents
         for _, proc in nlp.pipeline:
@@ -55,16 +55,16 @@ def evaluate_model(trained_pipeline: Path, test_data: Path, print_details: bool)
         pred = Doc(
             nlp.vocab,
             words=[t.text for t in gold],
-            spaces=[t.whitespace_ for t in gold],
+            spaces=[bool(t.whitespace_) for t in gold],
         )
         pred.ents = gold.ents
         relation_extractor = nlp.get_pipe("relation_extractor")
-        get_instances = relation_extractor.model.attrs["get_instances"]
+        get_instances = relation_extractor.model.attrs["get_instances"]  # type: ignore
         for e1, e2 in get_instances(pred):
             offset = (e1.start, e2.start)
             if offset not in pred._.rel:
                 pred._.rel[offset] = {}
-            for label in relation_extractor.labels:
+            for label in relation_extractor.labels:  # type: ignore
                 pred._.rel[offset][label] = random.uniform(0, 1)
         random_examples.append(Example(pred, gold))
 
