@@ -176,7 +176,7 @@ def get_bert_pipeline(model_directory: str) -> Pipeline:
 
 def get_ner_pipeline(
     bert_model_directory: str = "pubmedbert",
-    spacy_model: str = "en_core_sci_md",
+    spacy_model: str = "en_core_sci_sm",
     enable_ner_pipelines: bool = True,
 ) -> Language:
     """
