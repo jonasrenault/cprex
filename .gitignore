@@ -164,5 +164,7 @@ cython_debug/
 
 pubmedbert
 grobid
-bert-model.tar.gz
+pubmedbert-model.tar.gz
 grobid-*.zip
+resources/rel/data
+resources/rel/training*

@@ -300,7 +300,7 @@ def data(corpus_file: str, data_dir: str, test: bool, cv: bool, masking: bool):
     "--config",
     "config",
     help="the model config file",
-    default="clee/rel/configs/rel_tok2vec.cfg",
+    default="cprex/rel/configs/rel_tok2vec.cfg",
     type=click.Path(file_okay=True),
 )
 @click.option(
@@ -341,7 +341,7 @@ def train_tok2vec(config: str, output: str, train_data: str, dev_data: str):
         "--paths.dev",
         dev_data,
         "-c",
-        "./clee/rel/custom_functions.py",
+        "./cprex/rel/custom_functions.py",
     ]
     subprocess.run(command)
 
@@ -352,7 +352,7 @@ def train_tok2vec(config: str, output: str, train_data: str, dev_data: str):
     "--config",
     "config",
     help="the model config file",
-    default="clee/rel/configs/rel_trf.cfg",
+    default="cprex/rel/configs/rel_trf.cfg",
     type=click.Path(file_okay=True),
 )
 @click.option(
@@ -422,7 +422,7 @@ def train_trf(
                 "--paths.dev",
                 str(dev_file),
                 "-c",
-                "./clee/rel/custom_functions.py",
+                "./cprex/rel/custom_functions.py",
                 "--gpu-id",
                 "0",
             ]
@@ -444,7 +444,7 @@ def train_trf(
             "--paths.dev",
             dev_data,
             "-c",
-            "./clee/rel/custom_functions.py",
+            "./cprex/rel/custom_functions.py",
             "--gpu-id",
             "0",
         ]
