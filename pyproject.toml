@@ -8,17 +8,25 @@ homepage = "https://github.com/jonasrenault/cprex#readme"
 repository = "https://github.com/jonasrenault/cprex"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 requests = "^2.31.0"
 tqdm = "^4.66.2"
 ratelimit = "^2.2.1"
-spacy = "^3.7.4"
+spacy = ">=3.6.1,<3.7.0"
 click = "^8.1.7"
 beautifulsoup4 = "^4.12.3"
 pandas = "^2.2.1"
 lxml = "^5.1.0"
 transformers = "^4.38.2"
 grobid-quantities-client = "^0.4.0"
+torch = "^2.2.1"
+
+
+[tool.poetry.group.models]
+optional = true
+
+[tool.poetry.group.models.dependencies]
+en_core_sci_md = {url = "https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.3/en_core_sci_md-0.5.3.tar.gz"}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -30,11 +38,15 @@ bandit = "^1.7.7"
 jupyterlab = "^4.1.3"
 
 
+[tool.poetry.group.stubs]
+optional = true
+
 [tool.poetry.group.stubs.dependencies]
 types-requests = "^2.31.0.20240218"
 types-tqdm = "^4.66.0.20240106"
 pandas-stubs = "^2.2.0.240218"
 types-beautifulsoup4 = "^4.12.0.20240229"
+
 
 [build-system]
 requires = ["poetry-core"]

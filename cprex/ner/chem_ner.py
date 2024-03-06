@@ -95,6 +95,7 @@ class ChemNERComponent:
 
     def __call__(self, doc: Doc):
         doc_ents = []
+        new_tokens: set[int] = set()
 
         # for each sentence in the document, run bert NER to extract chemical names
         for sentence in doc.sents:
@@ -108,11 +109,24 @@ class ChemNERComponent:
                 start, end = get_token_index_from_label_positions(
                     sentence, entity.start, entity.end
                 )
-                if start is not None and end is not None:
-                    new_ent = Span(doc, start, end, label=entity.label)
-                    doc_ents.append(new_ent)
+                if start is None or end is None:
+                    continue
 
-        doc.ents = doc_ents
+                # Check that the tokens are not already included in an entity.
+                # Spacy only allows a token to be in one entity
+                # https://github.com/explosion/spaCy/issues/3608
+                entity_tokens = set(range(start, end))
+                if (
+                    any(t.ent_type for t in doc[start:end])
+                    or len(new_tokens & entity_tokens) > 0
+                ):
+                    continue
+
+                new_tokens |= entity_tokens
+                new_ent = Span(doc, start, end, label=entity.label)
+                doc_ents.append(new_ent)
+
+        doc.ents = list(doc.ents) + doc_ents
         return doc
 
 
