@@ -4,14 +4,15 @@ import spacy
 from spacy import displacy
 from spacy.language import Language
 from spacy.tokens import Doc, Span
-from transformers import (  # type: ignore
-    AutoConfig,
+from transformers import (
+    AutoConfig,  # type: ignore
     AutoModelForTokenClassification,
     AutoTokenizer,
     Pipeline,
     pipeline,
 )
 
+from cprex.ner.abbreviations import AbbreviationDetector  # noqa: F401
 from cprex.ner.properties import PROPERTY_PATTERNS
 
 # This import is required by spacy to create the quantities pipeline component
@@ -178,6 +179,7 @@ def get_ner_pipeline(
     bert_model_directory: str = "pubmedbert",
     spacy_model: str = "en_core_web_sm",
     enable_ner_pipelines: bool = True,
+    detect_abbreviations: bool = False,
 ) -> Language:
     """
     Build an nlp pipeline for ner.
@@ -204,6 +206,9 @@ def get_ner_pipeline(
         # Add a custom entity ruler for Property NER
         ruler = nlp.add_pipe("entity_ruler", after="QuantitiesNER")
         ruler.add_patterns(PROPERTY_PATTERNS)  # type: ignore
+
+    if detect_abbreviations:
+        nlp.add_pipe("abbreviation_detector")
 
     # Add custom attributes to Doc class
     if not Doc.has_extension("title"):
