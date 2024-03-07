@@ -176,7 +176,7 @@ def get_bert_pipeline(model_directory: str) -> Pipeline:
 
 def get_ner_pipeline(
     bert_model_directory: str = "pubmedbert",
-    spacy_model: str = "en_core_sci_sm",
+    spacy_model: str = "en_core_web_sm",
     enable_ner_pipelines: bool = True,
 ) -> Language:
     """
@@ -194,7 +194,7 @@ def get_ner_pipeline(
         nlp.add_pipe(
             "add_chemical_entities",
             "ChemNER",
-            after="parser",
+            last=True,
             config={"bert_model_directory": bert_model_directory},
         )
 
