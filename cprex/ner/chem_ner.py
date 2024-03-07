@@ -4,8 +4,8 @@ import spacy
 from spacy import displacy
 from spacy.language import Language
 from spacy.tokens import Doc, Span
-from transformers import (
-    AutoConfig,  # type: ignore
+from transformers import (  # type: ignore
+    AutoConfig,
     AutoModelForTokenClassification,
     AutoTokenizer,
     Pipeline,
