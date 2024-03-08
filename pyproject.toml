@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cprex"
-version = "0.2.0"
+version = "0.3.0"
 description = "Chemical Properties Relation Extraction"
 authors = ["Jonas Renault <jonasrenault@gmail.com>", "Lucie Chasseur <lucie.chasseur@inria.fr>"]
 readme = "README.md"
@@ -71,15 +71,18 @@ exclude = [
     "dist",
     "venv",
 ]
-lint.ignore = []
+src = ["cprex", "tests"]
 line-length = 90
-lint.select = [
+
+[tool.ruff.lint]
+ignore-init-module-imports = true
+ignore = []
+select = [
     "E",
     "F",
     "W",
     "I001",
 ]
-src = ["cprex", "tests"]
 
 [tool.mypy]
 files = ["cprex"]
