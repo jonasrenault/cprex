@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-import spacy
 from spacy import displacy
 from spacy.language import Language
 from spacy.tokens import Doc, Span
@@ -12,11 +11,6 @@ from transformers import (  # type: ignore
     pipeline,
 )
 
-from cprex.ner.abbreviations import AbbreviationDetector  # noqa: F401
-from cprex.ner.properties import PROPERTY_PATTERNS
-
-# This import is required by spacy to create the quantities pipeline component
-from cprex.ner.quantities import create_quantities_ner_component  # noqa: F401
 from cprex.parser.pdf_parser import Article
 
 DEFAULT_LABEL_COLORS = {
@@ -172,54 +166,6 @@ def get_bert_pipeline(model_directory: str) -> Pipeline:
     )
 
     nlp = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
-    return nlp
-
-
-def get_ner_pipeline(
-    bert_model_directory: str = "pubmedbert",
-    spacy_model: str = "en_core_web_sm",
-    enable_ner_pipelines: bool = True,
-    detect_abbreviations: bool = False,
-) -> Language:
-    """
-    Build an nlp pipeline for ner.
-    """
-    nlp = spacy.load(spacy_model, disable=["ner"])
-
-    # Do not split sentences on abbreviations like approx.
-    nlp.tokenizer.add_special_case(  # type: ignore
-        "approx.", [{"ORTH": "approx.", "NORM": "approximately"}]
-    )
-
-    if enable_ner_pipelines:
-        # Add a custom component for Chemical NER
-        nlp.add_pipe(
-            "add_chemical_entities",
-            "ChemNER",
-            last=True,
-            config={"bert_model_directory": bert_model_directory},
-        )
-
-        # Add a custom component for Quantities NER
-        nlp.add_pipe("add_quantities", "QuantitiesNER", after="ChemNER")
-
-        # Add a custom entity ruler for Property NER
-        ruler = nlp.add_pipe("entity_ruler", after="QuantitiesNER")
-        ruler.add_patterns(PROPERTY_PATTERNS)  # type: ignore
-
-    if detect_abbreviations:
-        nlp.add_pipe("abbreviation_detector")
-
-    # Add custom attributes to Doc class
-    if not Doc.has_extension("title"):
-        Doc.set_extension("title", default=None)
-    if not Doc.has_extension("doi"):
-        Doc.set_extension("doi", default=None)
-    if not Doc.has_extension("section"):
-        Doc.set_extension("section", default=None)
-    if not Doc.has_extension("rel"):
-        Doc.set_extension("rel", default={})
-
     return nlp
 
 

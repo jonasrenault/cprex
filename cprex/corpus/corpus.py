@@ -12,8 +12,9 @@ from cprex.crawler.chemrxiv import (
     download_pdf_for_paper,
     parse_article_metadata,
 )
-from cprex.ner.chem_ner import get_ner_pipeline, ner_article
+from cprex.ner.chem_ner import ner_article
 from cprex.parser.pdf_parser import parse_pdf_to_dict
+from cprex.pipeline import get_pipeline
 
 INTERESTING_UNITS = [
     "TEMPERATURE",
@@ -193,7 +194,7 @@ def create_corpus_from_metadata_file(
 
     # create ner pipeline
     model_dir = Path() / "model"
-    nlp = get_ner_pipeline(str(model_dir))
+    nlp = get_pipeline(str(model_dir))
 
     # process articles
     count = 0

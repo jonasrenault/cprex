@@ -13,7 +13,7 @@ import requests
 from tqdm import tqdm
 
 from cprex.crawler.chemrxiv import download_paper_metadata, download_pdfs_from_dump
-from cprex.ner.chem_ner import get_ner_pipeline
+from cprex.pipeline import get_pipeline
 from cprex.rel.evaluate import evaluate_model
 from cprex.rel.parse_data import parse_label_studio_annotations
 
@@ -287,7 +287,7 @@ def crawl_chemrxiv(dump_file, save_dir, limit):
 )
 def data(corpus_file: str, data_dir: str, test: bool, cv: bool, masking: bool):
     click.echo("Loading nlp pipeline...")
-    nlp = get_ner_pipeline(enable_ner_pipelines=False)
+    nlp = get_pipeline(enable_ner_pipelines=False, enable_rel_pipeline=False)
     click.echo(f"Reading annotated corpus {corpus_file}...")
     parse_label_studio_annotations(
         Path(corpus_file), Path(data_dir), nlp, test, cv, masking
