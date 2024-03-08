@@ -39,7 +39,7 @@ jobs:
       # Install dependencies. `--no-root` means "install all dependencies but not the project
       # itself", which is what you want to avoid caching _your_ code.
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with dev --with stubs
+        run: poetry install --no-interaction --no-root --with dev --with stubs --with models
 
       - name: Test with pytest
         run: poetry run pytest
