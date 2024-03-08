@@ -1,21 +1,15 @@
-name: Test
+name: Publish to PyPI
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the main branch
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  release:
+    types: [published]
 
 env: # environment variables (available in any part of the action)
   PYTHON_VERSION: 3.11
 
 jobs:
-  test:
-    name: Run tests
+  publish:
+    name: Build and Publish to PyPI
     runs-on: ubuntu-latest
     steps:
       - name: Git checkout
@@ -30,10 +24,11 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "poetry"
 
-      # Install dependencies. `--no-root` means "install all dependencies but not the project
-      # itself", which is what you want to avoid caching _your_ code.
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with dev
+        run: poetry install --no-interaction
 
-      - name: Test with pytest
-        run: poetry run pytest
+      - name: Login to PyPI
+        run: poetry config pypi-token.pypi "${{ secrets.PYPI_API_KEY }}"
+
+      - name: Publish package
+        run: poetry publish --build
