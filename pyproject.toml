@@ -83,4 +83,4 @@ exclude = ["cprex/parser/"]
 
 [[tool.mypy.overrides]]
 module = "cprex.parser.*"
-follow_imports = 'error'
+follow_imports = 'silent'
