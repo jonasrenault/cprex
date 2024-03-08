@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "cprex"
-version = "0.1.0"
+version = "0.2.0"
 description = "Chemical Properties Relation Extraction"
-authors = ["Jonas Renault <jonasrenault@gmail.com>"]
+authors = ["Jonas Renault <jonasrenault@gmail.com>", "Lucie Chasseur <lucie.chasseur@inria.fr>"]
 readme = "README.md"
 homepage = "https://github.com/jonasrenault/cprex#readme"
 repository = "https://github.com/jonasrenault/cprex"

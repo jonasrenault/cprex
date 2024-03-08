@@ -1,9 +1,7 @@
 # nosec
-import logging
 import os
 import shutil
 import subprocess
-import sys
 import tarfile
 import tempfile
 from pathlib import Path
@@ -12,7 +10,6 @@ import click
 import requests
 from tqdm import tqdm
 
-from cprex.crawler.chemrxiv import download_paper_metadata, download_pdfs_from_dump
 from cprex.pipeline import get_pipeline
 from cprex.rel.evaluate import evaluate_model
 from cprex.rel.parse_data import parse_label_studio_annotations
@@ -20,6 +17,8 @@ from cprex.rel.parse_data import parse_label_studio_annotations
 PUBMED_BERT_MODEL_URL = "https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz"
 GROBID_URL = "https://github.com/kermitt2/grobid/archive/"
 GROBID_MASTER_URL = "https://github.com/kermitt2/grobid/zipball/master"
+
+DEFAULT_INSTALL_DIR = Path.home() / ".cprex"
 
 
 def pbar_download(url: str, fname: str | None = None, chunk_size: int = 1024) -> str:
@@ -74,21 +73,22 @@ def rel():
 @main.command()
 @click.option(
     "-d",
-    "--model-dir",
-    "model_directory",
+    "--models-dir",
+    "models_directory",
     help="directory where the model will be saved",
-    default="pubmedbert",
+    default=DEFAULT_INSTALL_DIR,
     type=click.Path(dir_okay=True),
 )
-def download_pubmedbert(model_directory: str = "model") -> None:
-    if Path(model_directory).is_dir():
+def install_models(models_directory: str) -> None:
+    pubmedbert_dir = f"{models_directory}/pubmedbert"
+    if Path(pubmedbert_dir).is_dir():
         click.echo(
-            f"Model directory {model_directory} already exists. "
+            f"Model directory {pubmedbert_dir} already exists. "
             "PubMedBert model will not be downloaded."
         )
         return
 
-    click.echo(f"Downloading PubMedBert model to {model_directory}")
+    click.echo(f"Downloading PubMedBert model to {pubmedbert_dir}")
     click.echo("This can take a while as model file is 1.4G ...")
     zipped_file = Path() / "pubmedbert-model.tar.gz"
     try:
@@ -98,12 +98,12 @@ def download_pubmedbert(model_directory: str = "model") -> None:
                 f.extractall(path=tmp_dir)
 
             root_dir = os.listdir(tmp_dir)[0]
-            shutil.move(os.path.join(tmp_dir, root_dir), model_directory)
+            shutil.move(os.path.join(tmp_dir, root_dir), pubmedbert_dir)
     finally:
         if zipped_file.exists():
             os.remove(zipped_file)
 
-    click.echo(f"Downloaded downloaded to {model_directory}")
+    click.echo(f"Downloaded PubMedBert to {pubmedbert_dir}")
 
 
 @main.command()
@@ -112,7 +112,7 @@ def download_pubmedbert(model_directory: str = "model") -> None:
     "--grobid-dir",
     "grobid_directory",
     help="directory where grobid will be saved",
-    default="grobid",
+    default=f"{DEFAULT_INSTALL_DIR}/grobid",
     type=click.Path(dir_okay=True),
 )
 @click.option(
@@ -123,7 +123,7 @@ def download_pubmedbert(model_directory: str = "model") -> None:
     default="0.8.0",
     type=str,
 )
-def download_grobid(grobid_directory: str, version: str = "0.8.0") -> None:
+def install_grobid(grobid_directory: str, version: str = "0.8.0") -> None:
     if Path(grobid_directory).is_dir():
         click.echo(
             f"GROBID directory {grobid_directory} already exists. "
@@ -172,11 +172,11 @@ def download_grobid(grobid_directory: str, version: str = "0.8.0") -> None:
     "--grobid-dir",
     "grobid_directory",
     help="path to the grobid directory",
-    default="grobid",
+    default=f"{DEFAULT_INSTALL_DIR}/grobid",
     type=click.Path(dir_okay=True),
 )
 def start_grobid(grobid_directory: str):
-    grobid_dir = Path() / grobid_directory
+    grobid_dir = Path(grobid_directory)
     qty_dir = grobid_dir / "grobid-quantities"
     cwds = [str(grobid_dir)]
     if qty_dir.is_dir():
@@ -216,35 +216,6 @@ def start_grobid(grobid_directory: str):
     procs = [subprocess.Popen(["./gradlew", "run"], cwd=cwd) for cwd in cwds]
     for p in procs:
         p.wait()
-
-
-@main.command()
-@click.option(
-    "-f",
-    "--dump-file",
-    "dump_file",
-    help="file name for article metadata",
-    default="chemrxiv_dump.jsonl",
-    type=click.Path(file_okay=True),
-)
-@click.option(
-    "-d",
-    "--save-dir",
-    "save_dir",
-    help="save dir for downloaded article pdfs",
-    default="chemrxiv_papers",
-    type=click.Path(dir_okay=True),
-)
-@click.option(
-    "-l", "limit", help="maximum number of articles to fetch", default=100, type=int
-)
-def crawl_chemrxiv(dump_file, save_dir, limit):
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-    metadata = Path(str(dump_file))
-    download_paper_metadata(metadata, limit=limit)
-
-    download_pdfs_from_dump(metadata, Path(save_dir))
 
 
 @rel.command()

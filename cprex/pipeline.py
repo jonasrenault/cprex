@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import spacy
 from spacy.language import Language
 from spacy.tokens import Doc
@@ -16,11 +18,13 @@ from cprex.rel.rel_model import (
 )
 from cprex.rel.rel_pipe import make_relation_extractor  # noqa: F401
 
+DEFAULT_MODEL_DIR = Path.home() / ".cprex"
+
 
 def get_pipeline(
-    bert_model_directory: str = "pubmedbert",
+    bert_model_directory: str = f"{DEFAULT_MODEL_DIR}/pubmedbert",
     spacy_model: str = "en_core_web_sm",
-    rel_model_directory: str = "rel_model",
+    rel_model_directory: str = f"{DEFAULT_MODEL_DIR}/rel_model",
     enable_ner_pipelines: bool = True,
     enable_rel_pipeline: bool = True,
     detect_abbreviations: bool = False,
