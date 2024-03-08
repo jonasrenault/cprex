@@ -96,3 +96,19 @@ cprex install-models
 ```
 
 This will install a [PubmedBert model](https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/) finetuned on the NLM-CHEM corpus for extraction of chemical named entities. This model was finetuned by the [BioCreative VII track](https://biocreative.bioinformatics.udel.edu/tasks/biocreative-vii/track-2/).
+
+It will also install a [RE model](https://github.com/jonasrenault/cprex/releases/tag/v0.3.0) pre-trained on our own annotated dataset.
+
+#### Installing a base spacy model
+
+A base [spaCy model](https://github.com/explosion/spacy-models/releases), such as `en_core_web_sm`, is required for tokenization, lemmatization, and all other features offered by spaCy. To install a spaCy model, you can run
+
+```console
+python -m spacy download en_core_web_sm
+```
+
+or directly install it with pip by specifying the model's url
+
+```console
+pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
+```

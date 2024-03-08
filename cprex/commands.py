@@ -15,6 +15,7 @@ from cprex.rel.evaluate import evaluate_model
 from cprex.rel.parse_data import parse_label_studio_annotations
 
 PUBMED_BERT_MODEL_URL = "https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz"
+REL_MODEL_URL = "https://github.com/jonasrenault/cprex/releases/download/v0.3.0/cprex-rel-model-0.3.0.tar.gz"
 GROBID_URL = "https://github.com/kermitt2/grobid/archive/"
 GROBID_MASTER_URL = "https://github.com/kermitt2/grobid/zipball/master"
 
@@ -60,6 +61,25 @@ def pbar_download(url: str, fname: str | None = None, chunk_size: int = 1024) ->
     return fname
 
 
+def download_and_extract_archive(
+    url: str, zipped_file: Path, output_dir: str, is_zip: bool = False
+):
+    try:
+        pbar_download(url, str(zipped_file))
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            if is_zip:
+                subprocess.run(["unzip", str(zipped_file), "-d", str(tmp_dir)])
+            else:
+                with tarfile.open(zipped_file, mode="r|gz") as f:
+                    f.extractall(path=tmp_dir)
+
+            root_dir = os.listdir(tmp_dir)[0]
+            shutil.move(os.path.join(tmp_dir, root_dir), output_dir)
+    finally:
+        if zipped_file.exists():
+            os.remove(zipped_file)
+
+
 @click.group()
 def main():
     pass
@@ -86,24 +106,25 @@ def install_models(models_directory: str) -> None:
             f"Model directory {pubmedbert_dir} already exists. "
             "PubMedBert model will not be downloaded."
         )
-        return
+    else:
+        click.echo(f"Downloading PubMedBert model to {pubmedbert_dir}")
+        click.echo("This can take a while as model file is 1.4G ...")
+        zipped_file = Path() / "pubmedbert-model.tar.gz"
+        download_and_extract_archive(PUBMED_BERT_MODEL_URL, zipped_file, pubmedbert_dir)
+        click.echo(f"Downloaded PubMedBert to {pubmedbert_dir}")
 
-    click.echo(f"Downloading PubMedBert model to {pubmedbert_dir}")
-    click.echo("This can take a while as model file is 1.4G ...")
-    zipped_file = Path() / "pubmedbert-model.tar.gz"
-    try:
-        pbar_download(PUBMED_BERT_MODEL_URL, str(zipped_file))
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            with tarfile.open(zipped_file, mode="r|gz") as f:
-                f.extractall(path=tmp_dir)
-
-            root_dir = os.listdir(tmp_dir)[0]
-            shutil.move(os.path.join(tmp_dir, root_dir), pubmedbert_dir)
-    finally:
-        if zipped_file.exists():
-            os.remove(zipped_file)
-
-    click.echo(f"Downloaded PubMedBert to {pubmedbert_dir}")
+    relmodel_dir = f"{models_directory}/rel_model"
+    if Path(relmodel_dir).is_dir():
+        click.echo(
+            f"Model directory {relmodel_dir} already exists. "
+            "REL model will not be downloaded."
+        )
+    else:
+        click.echo(f"Downloading REL model to {relmodel_dir}")
+        click.echo("This can take a while as model file is 1.2G ...")
+        zipped_file = Path() / "cprex-rel-model-0.3.0.tar.gz"
+        download_and_extract_archive(REL_MODEL_URL, zipped_file, relmodel_dir)
+        click.echo(f"Downloaded REL model to {relmodel_dir}")
 
 
 @main.command()
@@ -132,19 +153,9 @@ def install_grobid(grobid_directory: str, version: str = "0.8.0") -> None:
         click.echo("Run cprex start-grobid to start a Grobid server.")
     else:
         click.echo(f"Downloading Grobid ({version}) to {grobid_directory}")
-
         url = GROBID_MASTER_URL if version == "latest" else f"{GROBID_URL}{version}.zip"
         zipped_file = Path() / f"grobid-{version}.zip"
-        try:
-            pbar_download(url, str(zipped_file))
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                subprocess.run(["unzip", str(zipped_file), "-d", str(tmp_dir)])
-                root_dir = os.listdir(tmp_dir)[0]
-                shutil.move(os.path.join(tmp_dir, root_dir), grobid_directory)
-        finally:
-            if zipped_file.exists():
-                os.remove(zipped_file)
-
+        download_and_extract_archive(url, zipped_file, grobid_directory, is_zip=True)
         click.echo(f"Downloaded Grobid ({version}) to {grobid_directory}")
 
     click.echo("Cloning grobid-quantities to grobid-quantites directory")
