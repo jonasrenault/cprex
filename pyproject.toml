@@ -79,4 +79,8 @@ src = ["cprex", "tests"]
 
 [tool.mypy]
 files = ["cprex"]
-exclude = ["^cprex/parser"]
+exclude = ["cprex/parser/"]
+
+[[tool.mypy.overrides]]
+module = "cprex.parser.*"
+follow_imports = 'error'
