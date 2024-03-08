@@ -1,7 +1,7 @@
 # CPREx - Chemical Properties Relation Extraction
 
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-![python_version](https://img.shields.io/badge/Python-%3E=3.10-blue)
+![python_version](https://img.shields.io/badge/Python-%3E=3.11-blue)
 
 CPREx is an end to end tool for Named Entity Recognition (NER) and Relation Extraction (RE) specifically designed for chemical compounds and their properties. The goal of the tool is to identify, extract and link chemical compounds and their properties from scientific literature. For ease of use, CPREx provides a custom [spacy](https://spacy.io/) pipeline to perform NER and RE.
 
@@ -69,9 +69,7 @@ Any modifications you make to the cprex codebase will be immediatly reflected th
 
 #### Installing and running grobid
 
-CPREx depends on [GROBID](https://github.com/kermitt2/grobid) and its extension [grobid-quantities](https://github.com/lfoppiano/grobid-quantities) for parsing PDF documents and extracting quantities from their text.
-
-For convenience, CPREx provides a command line interface (CLI) to install grobid and start a grobid server.
+CPREx depends on [GROBID](https://github.com/kermitt2/grobid) and its extension [grobid-quantities](https://github.com/lfoppiano/grobid-quantities) for parsing PDF documents and extracting quantities from their text. For convenience, CPREx provides a command line interface (CLI) to install grobid and start a grobid server.
 
 Run
 
@@ -91,10 +89,10 @@ to start a grobid server and enable parsing of PDF documents from CPREx.
 
 #### Installing NER et REL models
 
-To perform Named Entity Recognition of chemical compounds and Relation Extraction, CPREx requires some pretrained models. These models can be installed by running
+To perform Named Entity Recognition (NER) of chemical compounds and Relation Extraction (RE), CPREx requires some pretrained models. These models can be installed by running
 
 ```console
 cprex install-models
 ```
 
-This will install a PubmedBert model finetuned on the NLM-CHEM corpus for extraction of chemical named entities. This model was finetuned by the [BioCreative VII track](https://biocreative.bioinformatics.udel.edu/tasks/biocreative-vii/track-2/).
+This will install a [PubmedBert model](https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/) finetuned on the NLM-CHEM corpus for extraction of chemical named entities. This model was finetuned by the [BioCreative VII track](https://biocreative.bioinformatics.udel.edu/tasks/biocreative-vii/track-2/).
