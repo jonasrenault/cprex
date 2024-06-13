@@ -1,0 +1,4 @@
+chemrxiv_papers
+.venv
+.mypy_cache
+resources
