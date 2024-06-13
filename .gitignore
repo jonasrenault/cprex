@@ -161,10 +161,6 @@ cython_debug/
 .vscode
 
 .ruff_cache
-
-pubmedbert
-grobid
-pubmedbert-model.tar.gz
-grobid-*.zip
 resources/rel/data
 resources/rel/training*
+notebooks/*.json
