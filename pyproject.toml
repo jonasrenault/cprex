@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cprex"
-version = "0.3.0"
+version = "0.4.0"
 description = "Chemical Properties Relation Extraction"
 authors = ["Jonas Renault <jonasrenault@gmail.com>", "Lucie Chasseur <lucie.chasseur@inria.fr>"]
 readme = "README.md"
@@ -10,7 +10,7 @@ repository = "https://github.com/jonasrenault/cprex"
 keywords = ["pubchem", "crawler", "chemistry", "machine-learning", "relation-extraction", "named-entity-extraction", "deep-learning", "transformers", "spacy", "scientific-articles"]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.11,<3.12.4"
 requests = "^2.31.0"
 ratelimit = "^2.2.1"
 tqdm = "^4.66.2"
@@ -24,6 +24,7 @@ transformers = ">=3.4.0,<4.37.0"
 torch = "^2.2.1"
 scikit-learn = "^1.4.1.post1"
 grobid-quantities-client = "^0.4.0"
+streamlit = "^1.35.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -34,6 +35,7 @@ mypy = "^1.8.0"
 bandit = "^1.7.7"
 jupyterlab = "^4.1.3"
 pytest = "^8.0.2"
+watchdog = "^4.0.1"
 
 [tool.poetry.group.models]
 optional = true
