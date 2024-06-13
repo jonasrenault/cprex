@@ -42,6 +42,8 @@ ENTHALPY_PATTERNS = [
         "label": "PROP",
         "pattern": [
             {"LEMMA": "molar", "OP": "?"},
+            {"LEMMA": "volumetric", "OP": "?"},
+            {"LEMMA": "net", "OP": "?"},
             {"LEMMA": "enthalpy"},
             {"LOWER": "of"},
             {
@@ -63,6 +65,8 @@ ENTHALPY_PATTERNS = [
         "label": "PROP",
         "pattern": [
             {"LEMMA": "molar", "OP": "?"},
+            {"LEMMA": "volumetric", "OP": "?"},
+            {"LEMMA": "net", "OP": "?"},
             {
                 "LEMMA": {
                     "IN": [
@@ -83,6 +87,8 @@ ENTHALPY_PATTERNS = [
         "label": "PROP",
         "pattern": [
             {"LEMMA": "molar", "OP": "?"},
+            {"LEMMA": "volumetric", "OP": "?"},
+            {"LEMMA": "net", "OP": "?"},
             {"LEMMA": "heat"},
             {"LOWER": "of"},
             {
@@ -104,6 +110,8 @@ ENTHALPY_PATTERNS = [
         "label": "PROP",
         "pattern": [
             {"LEMMA": "molar", "OP": "?"},
+            {"LEMMA": "volumetric", "OP": "?"},
+            {"LEMMA": "net", "OP": "?"},
             {
                 "LEMMA": {
                     "IN": [
@@ -117,6 +125,20 @@ ENTHALPY_PATTERNS = [
                 }
             },
             {"LEMMA": "heat"},
+        ],
+        "id": "enthalpy",
+    },
+    {
+        "label": "PROP",
+        "pattern": [
+            {"TEXT": "NHOC"},
+        ],
+        "id": "enthalpy",
+    },
+    {
+        "label": "PROP",
+        "pattern": [
+            {"TEXT": "VHOC"},
         ],
         "id": "enthalpy",
     },
@@ -224,9 +246,11 @@ POINT_PATTERNS = [
                     "IN": [
                         "flash",
                         "boil",
+                        "boiling",
                         "melt",
                         "heat",
                         "freeze",
+                        "freezing",
                         "decomposition",
                         "sublimation",
                         "dec.",
@@ -248,9 +272,18 @@ POINT_PATTERNS = [
     {
         "label": "PROP",
         "pattern": [
-            {"LEMMA": "be"},
-            {"LEMMA": "stable"},
-            {"LEMMA": "at"},
+            {"LEMMA": {"IN": ["stable", "stability"]}},
+            {
+                "LEMMA": {
+                    "IN": [
+                        "at",
+                        "until",
+                        "up",
+                        "from",
+                    ]
+                }
+            },
+            {"LEMMA": "to", "OP": "?"},
         ],
         "id": "temperature",
     },
@@ -265,24 +298,16 @@ POINT_PATTERNS = [
     {
         "label": "PROP",
         "pattern": [
-            {"LEMMA": "be"},
-            {"LEMMA": "stable"},
-            {"LEMMA": "up"},
-            {"LEMMA": "to"},
-        ],
-        "id": "temperature",
-    },
-    {
-        "label": "PROP",
-        "pattern": [
             {
                 "LEMMA": {
                     "IN": [
                         "heat",
                         "boil",
+                        "boiling",
                         "melt",
                         "heat",
                         "freeze",
+                        "freezing",
                         "calorific",
                         "sublimation",
                         "decomposition",
@@ -432,7 +457,11 @@ OTHER_PATTERNS = [
         "label": "PROP",
         "pattern": [
             {"LEMMA": "thermal"},
-            {"LEMMA": {"IN": ["stability", "conductivity", "diffusivity"]}},
+            {
+                "LEMMA": {
+                    "IN": ["stability", "conductivity", "diffusivity", "decomposition"]
+                }
+            },
         ],
         "id": "thermal",
     },

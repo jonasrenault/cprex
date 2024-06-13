@@ -90,6 +90,7 @@ class RelationExtractor(TrainablePipe):
                 "Could not determine any instances in any docs - "
                 "can not make any predictions."
             )
+            return self.model.ops.asarray(self.model.ops.alloc2f(1, 1))  # type: ignore
         scores = self.model.predict(docs)
         return self.model.ops.asarray(scores)  # type: ignore
 

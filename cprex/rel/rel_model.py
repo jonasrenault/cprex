@@ -5,6 +5,8 @@ from spacy.tokens import Doc, Span
 from thinc.api import Linear, Logistic, Model, chain
 from thinc.types import Floats2d, Ints1d, Ragged, cast
 
+from cprex.ner.quantities import PROPERTY_TO_UNITS
+
 
 @spacy.registry.architectures("rel_model.v1")
 def create_relation_model(
@@ -119,9 +121,27 @@ def can_link_instances(ent1: Span, ent2: Span, max_length: int):
     if max_length and abs(ent2.start - ent1.start) > max_length:
         return False
 
-    # Only link CHEM, PROP and FORMULA to VALUES
-    return ent1.label_ in ("CHEM", "PROP", "FORMULA") and ent2.label_ not in (
+    # Only link CHEM, PROP or FORMULA entities to VALUES entities
+    valid_types = ent1.label_ in ("CHEM", "PROP", "FORMULA") and ent2.label_ not in (
         "CHEM",
         "PROP",
         "FORMULA",
     )
+    if not valid_types:
+        return False
+
+    # Safety check: if we're linking a Property to a quantity, and we know the
+    # quantity's unit, check that the unit corresponds to the property,
+    # i.e. we're not linking a density to a length
+    if ent1.label_ in ("PROP", "FORMULA") and ent2.label_ != "VALUE":
+        property_type = ent1.ent_id_
+        quantity_unit = ent2.label_
+        if (
+            property_type
+            and property_type in PROPERTY_TO_UNITS
+            and PROPERTY_TO_UNITS[property_type]
+            and quantity_unit not in PROPERTY_TO_UNITS[property_type]
+        ):
+            return False
+
+    return True

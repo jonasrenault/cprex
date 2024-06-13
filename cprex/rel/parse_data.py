@@ -212,7 +212,11 @@ def parse_label_studio_annotations(
                 doc = parse_example(example, nlp, masking)
                 docs.append(doc)
             except ValueError as exc:
-                print(f"Unable to parse example {example['data']['text']}", exc)
+                print(
+                    f"Unable to parse example (id {example['id']}): \n"
+                    f"{example['data']['text']}",
+                    exc,
+                )
 
     print(f"Parsed {len(docs)} docs.")
 
