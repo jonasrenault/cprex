@@ -15,7 +15,7 @@ from cprex.rel.evaluate import evaluate_model
 from cprex.rel.parse_data import parse_label_studio_annotations
 
 PUBMED_BERT_MODEL_URL = "https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz"
-REL_MODEL_URL = "https://gitlab.inria.fr/api/v4/projects/43830/packages/generic/cprex-rel-model/0.4.0/cprex-rel-model-0.4.0.tar.gz"
+REL_MODEL_URL = "https://github.com/jonasrenault/cprex/releases/download/v0.4.0/cprex-rel-model-0.4.0.tar.gz"
 GROBID_URL = "https://github.com/kermitt2/grobid/archive/"
 GROBID_MASTER_URL = "https://github.com/kermitt2/grobid/zipball/master"
 
