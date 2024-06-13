@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 ![python_version](https://img.shields.io/badge/Python-%3E=3.11-blue)
 
-CPREx is an end to end tool for Named Entity Recognition (NER) and Relation Extraction (RE) specifically designed for chemical compounds and their properties. The goal of the tool is to identify, extract and link chemical compounds and their properties from scientific literature. For ease of use, CPREx provides a custom [spacy](https://spacy.io/) pipeline to perform NER and RE.
+CPREx is an end to end tool for Named Entity Recognition (NER) and Relation Extraction (RE) specifically designed for chemical compounds and their properties. The goal of the tool is to identify, extract and link chemical compounds and their properties from scientific literature. For ease of use, CPREx provides a custom [spaCy](https://spacy.io/) pipeline to perform NER and RE.
 
 The pipeline performs the following steps
 
