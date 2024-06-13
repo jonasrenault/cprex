@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from spacy import displacy
 from spacy.language import Language
 from spacy.tokens import Doc, Span
 from transformers import (  # type: ignore
@@ -12,25 +11,6 @@ from transformers import (  # type: ignore
 )
 
 from cprex.parser.pdf_parser import Article
-
-DEFAULT_LABEL_COLORS = {
-    "CHEM": "pink",
-    "PROP": "#feca74",
-    "FORMULA": "#c887fb",
-    "TEMPERATURE": "#7aecec",
-    "DENSITY": "#7aecec",
-    "TIME": "#ddd",
-    "PERCENT": "#ddd",
-    "ENTHALPY": "#7aecec",
-    "MOLAR VOLUME": "#7aecec",
-    "ABSORPTIVITY": "#7aecec",
-    "SOLUBILITY": "#7aecec",
-    "ENERGY": "#7aecec",
-    "VELOCITY": "#7aecec",
-    "HEAT CAPACITY": "#7aecec",
-    "THERMAL CONDUCTIVITY": "#7aecec",
-    "DYNAMIC VISCOSITY": "#7aecec",
-}
 
 
 @dataclass
@@ -217,24 +197,3 @@ def ner_article(article: Article, nlp: Language) -> list[Doc]:
         doc._.section = ctxt["section"]
         results.append(doc)
     return results
-
-
-def render_ner_docs(
-    docs: list[Doc],
-    jupyter: bool = True,
-    colors: dict[str, str] = DEFAULT_LABEL_COLORS,
-):
-    display_docs = []
-    previous_title = None
-    for doc in docs:
-        doc.user_data["title"] = (
-            doc._.section
-            if previous_title != doc._.section and doc._.section != ""
-            else None
-        )
-        previous_title = doc._.section
-        display_docs.append(doc)
-
-    displacy.render(
-        display_docs, style="ent", jupyter=jupyter, options={"colors": colors}
-    )

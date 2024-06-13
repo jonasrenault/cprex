@@ -4,6 +4,39 @@ from grobid_quantities.quantities import QuantitiesAPI  # type: ignore
 from spacy.language import Language
 from spacy.tokens import Doc, Span
 
+# List of Units of interest
+INTERESTING_UNITS = [
+    "TEMPERATURE",
+    "DENSITY",
+    "ENTHALPY",
+    "SOLUBILITY",
+    "MOLAR VOLUME",
+    "ABSORPTIVITY",
+    "ENERGY",
+    "VELOCITY",
+    "PRESSURE",
+    "HEAT CAPACITY",
+    "DYNAMIC VISCOSITY",
+    "THERMAL CONDUCTIVITY",
+]
+
+# Dict of which units match with which property types
+PROPERTY_TO_UNITS: dict[str, list[str]] = {
+    "enthalpy": ["ENERGY", "ENTHALPY", "MAXIMUM ENERGY PRODUCT"],
+    "energy": ["ENERGY", "ENTHALPY", "MAXIMUM ENERGY PRODUCT"],
+    "absorptivity": ["ABSORPTIVITY"],
+    "heat capacity": ["HEAT CAPACITY"],
+    "temperature": ["TEMPERATURE"],
+    "pressure": ["PRESSURE"],
+    "density": ["SOLUBILITY", "DENSITY"],
+    "viscosity": ["DYNAMIC VISCOSITY"],
+    "velocity": ["VELOCITY"],
+    "toxicity": [],
+    "thermal": ["TIME", "TEMPERATURE"],
+    "formula weight": [],
+    "sensibility": [],
+}
+
 
 @dataclass
 class GrobidEntity:

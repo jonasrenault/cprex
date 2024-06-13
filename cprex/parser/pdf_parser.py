@@ -1,5 +1,7 @@
 import logging
 from dataclasses import dataclass
+from io import BytesIO
+from pathlib import Path
 
 import pandas as pd
 import requests
@@ -35,7 +37,9 @@ class Article(object):
 
 
 def parse_pdf(
-    pdf_path: str, grobid_url: str = GROBID_URL, segment_sentences: bool = False
+    pdf_path: str | Path | BytesIO,
+    grobid_url: str = GROBID_URL,
+    segment_sentences: bool = False,
 ) -> BeautifulSoup | None:
     """
     Parse a pdf using a GROBID server.
@@ -59,9 +63,12 @@ def parse_pdf(
     if segment_sentences:
         data["segmentSentences"] = 1
 
-    with open(pdf_path, "rb") as f:
-        r = requests.post(url, files={"input": f}, data=data, timeout=180)
-        parsed_article_text = r.text
+    if isinstance(pdf_path, (str, Path)):
+        with open(pdf_path, "rb") as f:
+            r = requests.post(url, files={"input": f}, data=data, timeout=180)
+    else:
+        r = requests.post(url, files={"input": pdf_path}, data=data, timeout=180)
+    parsed_article_text = r.text
 
     if parsed_article_text is not None:
         parsed_article = BeautifulSoup(parsed_article_text, "lxml-xml")
@@ -246,7 +253,9 @@ def join_paragraphs(section: Section):
 
 
 def parse_pdf_to_dict(
-    pdf_path: str, grobid_url: str = GROBID_URL, segment_sentences: bool = True
+    pdf_path: str | Path | BytesIO,
+    grobid_url: str = GROBID_URL,
+    segment_sentences: bool = True,
 ) -> Article:
     parsed_article = parse_pdf(
         pdf_path, grobid_url=grobid_url, segment_sentences=segment_sentences

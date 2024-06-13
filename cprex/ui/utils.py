@@ -1,0 +1,121 @@
+from collections import Counter
+from io import BytesIO
+
+import requests
+import streamlit as st
+from spacy.tokens import Doc, Span
+
+from cprex.corpus.tuples import ChemPropValueRelation, extract_tuple_relations
+from cprex.ner.chem_ner import ner_article
+from cprex.parser.pdf_parser import Article, parse_pdf_to_dict
+from cprex.pipeline import get_pipeline
+
+
+@st.cache_resource
+def get_nlp():
+    nlp = get_pipeline(spacy_model="en_core_web_sm")
+
+    return nlp
+
+
+@st.cache_data
+def process_pdf(pdf: bytes, segment_sentences: bool = False) -> Article:
+    article = parse_pdf_to_dict(BytesIO(pdf), segment_sentences=segment_sentences)
+    return article
+
+
+@st.cache_data
+def run_pipeline(article: Article) -> list[Doc]:
+    nlp = get_nlp()
+    docs = ner_article(article, nlp)
+    return docs
+
+
+@st.cache_data
+def get_pdf_content_from_url(pdf_url: str) -> bytes:
+    headers = requests.utils.default_headers()
+    headers["User-Agent"] = (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
+        " Chrome/56.0.2924.87 Safari/537.36"
+    )
+    with st.spinner("Downloading file..."):
+        r = requests.get(pdf_url, headers=headers)
+    return r.content
+
+
+def get_html(html: str) -> str:
+    """Convert HTML so it can be rendered."""
+    WRAPPER = """<div style="overflow-x: auto;
+    margin-bottom: 1rem">{}</div>"""
+    # Newlines seem to mess with the rendering
+    html = html.replace("\n", " ")
+    return WRAPPER.format(html)
+
+
+def display_entity_values(counts: Counter, color: str, label: str, height: int = 200):
+    with st.container(height=height):
+        st.write(
+            f"<span style='color: {color}; font-weight: bold;'>{label}</span>"
+            f"<span style='float:right; font-weight: bold;'>{counts.total()}</span>",
+            unsafe_allow_html=True,
+        )
+        values = "".join(
+            [
+                f"{key} <span style='float:right'>{value}</span><br>"
+                for key, value in counts.most_common()
+            ]
+        )
+        st.markdown(values, unsafe_allow_html=True)
+
+
+def format_entity_value(chem: Span, color: str):
+    return (
+        f"<span style='background-color: {color}; padding: 0.25em;"
+        "border-radius: 0.5em;display:inline-block;"
+        f"margin: .25em .25em 0;'>{chem.text}</span>"
+    )
+
+
+def display_relation(rel: ChemPropValueRelation):
+    tags = []
+    if rel.chemicals is not None:
+        for chem in rel.chemicals:
+            tags.append(format_entity_value(chem, "pink"))
+    if rel.properties is not None:
+        for prop in rel.properties:
+            tags.append(format_entity_value(prop, "#feca74"))
+    tags.append(format_entity_value(rel.value, "#7aecec"))
+
+    with st.container(border=True):
+        st.write("".join(tags), unsafe_allow_html=True)
+
+
+def get_relations(
+    docs: list[Doc], triplets_only: bool = False
+) -> list[ChemPropValueRelation]:
+    res = []
+    for doc in docs:
+        tuples = extract_tuple_relations(doc)
+        for tuple_ in tuples:
+            if tuple_.chemicals is not None and (
+                not triplets_only or tuple_.properties is not None
+            ):
+                res.append(tuple_)
+
+    return res
+
+
+def count_entities(docs: list[Doc]) -> tuple[Counter, Counter, Counter]:
+    chems = []
+    props = []
+    qtys = []
+    for doc in docs:
+        for ent in doc.ents:
+            if ent.label_ == "CHEM":
+                chems.append(ent.text)
+            elif ent.label_ == "PROP":
+                props.append(ent.ent_id_)
+            else:
+                qtys.append(ent.label_)
+
+    return Counter(chems), Counter(props), Counter(qtys)

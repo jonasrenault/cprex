@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 ![python_version](https://img.shields.io/badge/Python-%3E=3.11-blue)
 
-CPREx is an end to end tool for Named Entity Recognition (NER) and Relation Extraction (RE) specifically designed for chemical compounds and their properties. The goal of the tool is to identify, extract and link chemical compounds and their properties from scientific literature. For ease of use, CPREx provides a custom [spacy](https://spacy.io/) pipeline to perform NER and RE.
+CPREx is an end to end tool for Named Entity Recognition (NER) and Relation Extraction (RE) specifically designed for chemical compounds and their properties. The goal of the tool is to identify, extract and link chemical compounds and their properties from scientific literature. For ease of use, CPREx provides a custom [spaCy](https://spacy.io/) pipeline to perform NER and RE.
 
 The pipeline performs the following steps
 
@@ -97,7 +97,7 @@ cprex install-models
 
 This will install a [PubmedBert model](https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/) finetuned on the NLM-CHEM corpus for extraction of chemical named entities. This model was finetuned by the [BioCreative VII track](https://biocreative.bioinformatics.udel.edu/tasks/biocreative-vii/track-2/).
 
-It will also install a [RE model](https://github.com/jonasrenault/cprex/releases/tag/v0.3.0) pre-trained on our own annotated dataset.
+It will also install a [RE model](https://github.com/jonasrenault/cprex/releases/tag/v0.4.0) pre-trained on our own annotated dataset.
 
 #### Installing a base spacy model
 

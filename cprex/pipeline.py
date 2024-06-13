@@ -70,7 +70,6 @@ def get_pipeline(
 
     if enable_rel_pipeline:
         rel_model = spacy.load(rel_model_directory)
-        # relation_extractor = nlp.get_pipe("relation_extractor")
         nlp.add_pipe("transformer", source=rel_model)
         nlp.add_pipe("relation_extractor", source=rel_model)
 
