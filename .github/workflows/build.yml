@@ -14,10 +14,13 @@ env: # environment variables (available in any part of the action)
   PYTHON_VERSION: 3.11
 
 jobs:
-  lint-test:
-    name: Run tests
+  build_push:
+    name: Build docker image and push to ghcr.io
     runs-on: ubuntu-latest
     steps:
+      - name: Create more disk space
+        run: sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Git checkout
         uses: actions/checkout@v4
 
@@ -33,7 +36,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
 
@@ -45,6 +48,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Image digest
+        run: echo ${{ steps.push.outputs.digest }}
 
     #   - name: Generate artifact attestation
     #     uses: actions/attest-build-provenance@v1
