@@ -1,4 +1,10 @@
 chemrxiv_papers
+resources
+notebooks
+Dockerfile
 .venv
 .mypy_cache
-resources
+.pytest_cache
+.vscode
+.ipynb_checkpoints
+.git
