@@ -7,6 +7,8 @@ on:
     tags:
       - "v*.*.*"
   pull_request:
+    branches:
+      - main
 
 env: # environment variables (available in any part of the action)
   PYTHON_VERSION: 3.11
@@ -16,8 +18,22 @@ jobs:
     name: Build docker image and push to ghcr.io
     runs-on: ubuntu-latest
     steps:
-      - name: Create more disk space
-        run: sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      # - name: Create more disk space
+      #   run: sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 30720 # 30G
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          # remove-docker-images: "true"
+
+      - name: Free space log
+        run: |
+          echo "Free space:"
+          df -h
 
       # - name: Git checkout
       #   uses: actions/checkout@v4
@@ -50,7 +66,8 @@ jobs:
         id: push
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name != 'pull_request' }}
+          # push: ${{ github.event_name != 'pull_request' }}
+          push: false
           # tags: ${{ steps.meta.outputs.tags }}
           tags: cprex:latest
           labels: ${{ steps.meta.outputs.labels }}
