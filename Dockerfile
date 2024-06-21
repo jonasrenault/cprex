@@ -89,10 +89,15 @@ WORKDIR /cprex
 RUN pip install poetry && poetry config virtualenvs.in-project true
 
 ### install dependencies and project
-ADD poetry.lock pyproject.toml README.md ./
+ADD pyproject.toml README.md ./
 ADD .streamlit /cprex/.streamlit
 ADD cprex /cprex/cprex
-RUN poetry install --no-dev --no-interaction --no-ansi --with models
+
+### Only install cpu version of pytorch in docker image.
+### installing GPU version of pytorch for linux/amd64 image leads to image size of > 5Gb.
+### see https://github.com/pytorch/pytorch/issues/17621
+RUN sed -i 's/\(.*\)platform="linux", source="pypi"}/\1platform="linux", source="torchcpu"}/g' pyproject.toml
+RUN poetry install --no-interaction --no-ansi --without dev --with models
 
 # -------------------
 # build runtime image

@@ -63,8 +63,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           # tags: cprex:latest
           labels: ${{ steps.meta.outputs.labels }}
-          # cache-from: type=gha
-          # cache-to: type=gha,mode=max
           # load: true
 
       - name: Image digest
