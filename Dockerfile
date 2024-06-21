@@ -76,26 +76,35 @@
 # RUN rm -rf /opt/cprex/grobid/grobid-home/models/*-BidLSTM_*
 # RUN rm -rf /opt/cprex/grobid/grobid-home/models/*-BERT_CRF*
 
+# ----------------
+# build python app
+# ----------------
+FROM python:3.11-slim AS app-builder
+
+ENV PATH="$PATH:/root/.local/bin"
+
+WORKDIR /cprex
+
+### install poetry
+RUN pip install poetry && poetry config virtualenvs.in-project true
+
+### install dependencies and project
+ADD poetry.lock pyproject.toml README.md ./
+ADD .streamlit /cprex/.streamlit
+ADD cprex /cprex/cprex
+RUN poetry install --no-dev --no-interaction --no-ansi --with models
+
 # -------------------
 # build runtime image
 # -------------------
 FROM python:3.11-slim
 
-ENV PATH="$PATH:/root/.local/bin"
-
 ### instal JRE
-RUN apt-get update && apt-get -y --no-install-recommends install openjdk-17-jre
+# RUN apt-get update && apt-get -y --no-install-recommends install openjdk-17-jre
 
+### COPY /cprex
 WORKDIR /cprex
-
-### install poetry
-RUN pip install pipx
-RUN pipx install poetry
-RUN pipx ensurepath
-
-### install dependencies and project
-COPY poetry.lock pyproject.toml .streamlit/ cprex/ ./
-RUN poetry install --no-dev --no-interaction --no-ansi --with models
+COPY --from=app-builder /cprex .
 
 ### copy .CPREX directory with models and grobid
 # COPY --from=builder /opt/cprex /root/.cprex/
@@ -105,4 +114,5 @@ EXPOSE 8501
 
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
-CMD ["poetry", "run", "streamlit", "run", "cprex/ui/streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]
+ENTRYPOINT [ "./.venv/bin/python"]
+CMD ["-m", "streamlit", "run", "cprex/ui/streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]
