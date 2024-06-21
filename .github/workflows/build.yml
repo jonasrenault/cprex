@@ -60,18 +60,19 @@ jobs:
         with:
           # push: ${{ github.event_name != 'pull_request' }}
           push: true
-          # tags: ${{ steps.meta.outputs.tags }}
-          tags: cprex:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          # tags: cprex:latest
           labels: ${{ steps.meta.outputs.labels }}
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
-          load: true
+          # load: true
 
       - name: Image digest
-        run: |
-          echo ${{ steps.push.outputs.digest }}
-          docker image inspect cprex:latest
-          docker history cprex:latest
+        run: echo ${{ steps.push.outputs.digest }}
+        # run: |
+        #   echo ${{ steps.push.outputs.digest }}
+        #   docker image inspect cprex:latest
+        #   docker history cprex:latest
 
     #   - name: Generate artifact attestation
     #     uses: actions/attest-build-provenance@v1
