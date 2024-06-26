@@ -13,13 +13,18 @@ FROM  openjdk:17-jdk-slim AS grobid-builder
 
 RUN apt-get update && apt-get -y --no-install-recommends install unzip
 
+WORKDIR /opt/cprex
+
+#############################
 ### download models
-# ADD https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz /cprex/
+#############################
+
+# ADD https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz /opt/cprex/
 # RUN tar -xzf model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz \
 #     && rm model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz \
 #     && mv PubMedBERT_NLMChemBC5CDRBC7Silver pubmedbert
 
-# ADD https://gitlab.inria.fr/api/v4/projects/43830/packages/generic/cprex-rel-model/0.4.0/cprex-rel-model-0.4.0.tar.gz /cprex/
+# ADD https://gitlab.inria.fr/api/v4/projects/43830/packages/generic/cprex-rel-model/0.4.0/cprex-rel-model-0.4.0.tar.gz /opt/cprex/
 # RUN tar -xzf cprex-rel-model-0.4.0.tar.gz \
 #     && rm cprex-rel-model-0.4.0.tar.gz \
 #     && mv model rel_model
@@ -27,7 +32,7 @@ RUN apt-get update && apt-get -y --no-install-recommends install unzip
 #############################
 ### download and build grobid
 #############################
-WORKDIR /opt/cprex
+
 ### download grobid source
 ADD https://github.com/kermitt2/grobid/archive/0.8.0.zip /opt/cprex/
 RUN unzip /opt/cprex/0.8.0.zip -d /opt/cprex \
@@ -53,7 +58,7 @@ RUN unzip -o /opt/cprex/grobid-0.8.0/grobid-service/build/distributions/grobid-s
     mv grobid-service* grobid-service
 RUN unzip -o /opt/cprex/grobid-0.8.0/grobid-home/build/distributions/grobid-home-*.zip && \
     chmod -R 755 /opt/cprex/grobid/grobid-home/pdfalto
-RUN rm -rf grobid-0.8.0
+RUN rm -rf /opt/cprex/grobid-0.8.0
 
 # ########################################
 # ### download and build grobid-quantities
@@ -67,7 +72,15 @@ RUN ./gradlew clean assemble --no-daemon --stacktrace --info
 ### prepare grobid-quantities service
 WORKDIR /opt/cprex/grobid
 RUN unzip -o /opt/cprex/grobid-quantities/build/distributions/grobid-quantities-*.zip -d grobid-quantities_distribution \
-    && mv grobid-quantities_distribution/grobid-quantities-* grobid-quantities
+    && mv grobid-quantities_distribution/grobid-quantities-* grobid-quantities \
+    && rm -rf grobid-quantities_distribution
+
+### copy grobid-quantities config and quantities model
+RUN mkdir -p grobid-quantities/resources \
+    && mv /opt/cprex/grobid-quantities/resources/config grobid-quantities/resources \
+    && sed -i 's/\/opt/\/root\/.cprex/g' grobid-quantities/resources/config/config-docker.yml
+
+RUN mv /opt/cprex/grobid-quantities/resources/models/quantities /opt/cprex/grobid/grobid-home/models
 
 ### Cleanup
 RUN rm -rf /opt/cprex/grobid-quantities
