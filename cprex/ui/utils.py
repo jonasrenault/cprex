@@ -1,3 +1,5 @@
+import subprocess
+import time
 from collections import Counter
 from io import BytesIO
 from pathlib import Path
@@ -12,8 +14,8 @@ from cprex.ner.chem_ner import ner_article
 from cprex.parser.pdf_parser import Article, parse_pdf_to_dict
 from cprex.pipeline import get_pipeline
 
-GROBID_QTY_ISALIVE_URL = "localhost:8060/service/isalive"
-GROBID_ISALIVE_URL = "localhost:8070/api/isalive"
+GROBID_QTY_ISALIVE_URL = "http://localhost:8060/service/isalive"
+GROBID_ISALIVE_URL = "http://localhost:8070/api/isalive"
 
 
 @st.cache_resource
@@ -43,23 +45,64 @@ def check_models():
         )
 
 
-@st.cache_resource
-def check_grobid():
-    valid = True
-    services = {"grobid": GROBID_ISALIVE_URL, "grobid-quantities": GROBID_QTY_ISALIVE_URL}
-    for service, url in services.items():
-        try:
-            r = requests.get(url)
-            r.raise_for_status()
-        except Exception:
+def check_grobid(service: str, url: str, display_error: bool):
+    try:
+        r = requests.get(url)
+        r.raise_for_status()
+    except Exception:
+        if display_error:
             st.error(
                 f"Unable to connect to the {service} service. Make sure it's running "
                 "by running `cprex start-grobid` before starting the UI.",
                 icon=":material/chat_error:",
             )
-            valid = False
+        return False
+    return True
 
-    return valid
+
+@st.cache_resource
+def check_start_grobid():
+    procs = []
+    # Check or start grobid
+    grobid_service = (
+        DEFAULT_INSTALL_DIR / "grobid" / "grobid-service" / "bin" / "grobid-service"
+    )
+    grobid_is_running = check_grobid(
+        "grobid", GROBID_ISALIVE_URL, not grobid_service.exists()
+    )
+    if not grobid_is_running and grobid_service.exists():
+        procs.append(subprocess.Popen([str(grobid_service)]))
+
+    # Check or start grobid-quantity
+    grobid_qty_service = (
+        DEFAULT_INSTALL_DIR / "grobid" / "grobid-quantities" / "bin" / "grobid-quantities"
+    )
+    grobid_qty_is_running = check_grobid(
+        "grobid-quantities", GROBID_QTY_ISALIVE_URL, not grobid_qty_service.exists()
+    )
+    if not grobid_qty_is_running and grobid_qty_service.exists():
+        procs.append(
+            subprocess.Popen(
+                [
+                    str(grobid_qty_service),
+                    "server",
+                    str(
+                        DEFAULT_INSTALL_DIR
+                        / "grobid"
+                        / "grobid-quantities"
+                        / "resources"
+                        / "config"
+                        / "config.yml"
+                    ),
+                ]
+            )
+        )
+
+    if len(procs) > 0:
+        with st.spinner("Grobid services are starting..."):
+            time.sleep(10)
+
+    return procs
 
 
 @st.cache_data

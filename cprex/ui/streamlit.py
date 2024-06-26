@@ -4,8 +4,8 @@ from spacy.tokens import Doc
 from cprex.displacy.render import render
 from cprex.parser.pdf_parser import Article
 from cprex.ui.utils import (
-    check_grobid,
     check_models,
+    check_start_grobid,
     count_entities,
     display_entity_values,
     display_relation,
@@ -78,7 +78,7 @@ submit = st.button("Submit !")
 ### on startup
 ###############################
 check_models()
-check_grobid()
+check_start_grobid()
 
 
 def display_article(article: Article, docs: list[Doc]):

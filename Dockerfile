@@ -19,15 +19,15 @@ WORKDIR /opt/cprex
 ### download models
 #############################
 
-# ADD https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz /opt/cprex/
-# RUN tar -xzf model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz \
-#     && rm model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz \
-#     && mv PubMedBERT_NLMChemBC5CDRBC7Silver pubmedbert
+ADD https://ftp.ncbi.nlm.nih.gov/pub/lu/BC7-NLM-Chem-track/model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz /opt/cprex/
+RUN tar -xzf model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz \
+    && rm model_PubMedBERT_NLMChemBC5CDRBC7Silver.tar.gz \
+    && mv PubMedBERT_NLMChemBC5CDRBC7Silver pubmedbert
 
-# ADD https://gitlab.inria.fr/api/v4/projects/43830/packages/generic/cprex-rel-model/0.4.0/cprex-rel-model-0.4.0.tar.gz /opt/cprex/
-# RUN tar -xzf cprex-rel-model-0.4.0.tar.gz \
-#     && rm cprex-rel-model-0.4.0.tar.gz \
-#     && mv model rel_model
+ADD https://gitlab.inria.fr/api/v4/projects/43830/packages/generic/cprex-rel-model/0.4.0/cprex-rel-model-0.4.0.tar.gz /opt/cprex/
+RUN tar -xzf cprex-rel-model-0.4.0.tar.gz \
+    && rm cprex-rel-model-0.4.0.tar.gz \
+    && mv model rel_model
 
 #############################
 ### download and build grobid
