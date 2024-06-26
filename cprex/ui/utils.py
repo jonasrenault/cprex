@@ -71,7 +71,9 @@ def check_start_grobid():
         "grobid", GROBID_ISALIVE_URL, not grobid_service.exists()
     )
     if not grobid_is_running and grobid_service.exists():
-        procs.append(subprocess.Popen([str(grobid_service)]))
+        procs.append(
+            subprocess.Popen([str(grobid_service)], cwd=DEFAULT_INSTALL_DIR / "grobid")
+        )
 
     # Check or start grobid-quantity
     grobid_qty_service = (
