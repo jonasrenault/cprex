@@ -78,7 +78,8 @@ RUN unzip -o /opt/cprex/grobid-quantities/build/distributions/grobid-quantities-
 ### copy grobid-quantities config and quantities model
 RUN mkdir -p grobid-quantities/resources \
     && mv /opt/cprex/grobid-quantities/resources/config grobid-quantities/resources \
-    && sed -i 's/..\/grobid-home/\/root\/.cprex\/grobid\/grobid-home/g' grobid-quantities/resources/config/config.yml
+    && sed -i 's/..\/grobid-home/\/root\/.cprex\/grobid\/grobid-home/g' grobid-quantities/resources/config/config.yml \
+    && mv /opt/cprex/grobid-quantities/resources/clearnlp grobid-quantities/resources
 
 RUN cp -r /opt/cprex/grobid-quantities/resources/models/* /opt/cprex/grobid/grobid-home/models
 

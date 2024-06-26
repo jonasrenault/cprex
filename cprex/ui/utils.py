@@ -64,21 +64,17 @@ def check_grobid(service: str, url: str, display_error: bool):
 def check_start_grobid():
     procs = []
     # Check or start grobid
-    grobid_service = (
-        DEFAULT_INSTALL_DIR / "grobid" / "grobid-service" / "bin" / "grobid-service"
-    )
+    grobid_dir = DEFAULT_INSTALL_DIR / "grobid"
+    grobid_service = grobid_dir / "grobid-service" / "bin" / "grobid-service"
     grobid_is_running = check_grobid(
         "grobid", GROBID_ISALIVE_URL, not grobid_service.exists()
     )
     if not grobid_is_running and grobid_service.exists():
-        procs.append(
-            subprocess.Popen([str(grobid_service)], cwd=DEFAULT_INSTALL_DIR / "grobid")
-        )
+        procs.append(subprocess.Popen([str(grobid_service)], cwd=grobid_dir))
 
     # Check or start grobid-quantity
-    grobid_qty_service = (
-        DEFAULT_INSTALL_DIR / "grobid" / "grobid-quantities" / "bin" / "grobid-quantities"
-    )
+    grobid_qty_dir = grobid_dir / "grobid-quantities"
+    grobid_qty_service = grobid_dir / "grobid-quantities" / "bin" / "grobid-quantities"
     grobid_qty_is_running = check_grobid(
         "grobid-quantities", GROBID_QTY_ISALIVE_URL, not grobid_qty_service.exists()
     )
@@ -96,7 +92,8 @@ def check_start_grobid():
                         / "config"
                         / "config.yml"
                     ),
-                ]
+                ],
+                cwd=grobid_qty_dir,
             )
         )
 
