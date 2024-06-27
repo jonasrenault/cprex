@@ -41,7 +41,7 @@ flowchart LR
 
 CPREx works with a recent version of python (**>=python 3.11**). Make sure to install CPREx in a virtual environment of your choice.
 
-CPREx depends on [GROBID](https://github.com/kermitt2/grobid) and its extension [grobid-quantities](https://github.com/lfoppiano/grobid-quantities) for parsing PDF documents and extracting quantities from their text. In order to install and run GROBID, a JDK must also be installed on your machine. [GROBID currently supports](https://grobid.readthedocs.io/en/latest/Install-Grobid/) JDKs from **1.11 to 1.17**.
+CPREx depends on [GROBID](https://github.com/kermitt2/grobid) and its extension [grobid-quantities](https://github.com/lfoppiano/grobid-quantities) for parsing PDF documents and extracting quantities from their text. In order to install and run GROBID, a JDK must also be installed on your machine. [GROBID currently supports](https://grobid.readthedocs.io/en/latest/Install-Grobid/) JDK versions **11 to 17**.
 
 ### Install via PyPI
 
