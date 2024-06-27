@@ -119,7 +119,11 @@ RUN poetry install --no-interaction --no-ansi --without dev --with models
 FROM python:3.11-slim
 
 ### instal JRE
-RUN apt-get update && apt-get -y --no-install-recommends install openjdk-17-jre
+RUN apt-get update && apt-get -y --no-install-recommends install openjdk-17-jre supervisor
+RUN mkdir -p /var/log
+
+### COPY supervisord.conf
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ### COPY /cprex
 WORKDIR /cprex
@@ -133,5 +137,4 @@ EXPOSE 8501
 
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
-ENTRYPOINT [ "./.venv/bin/python"]
-CMD ["-m", "streamlit", "run", "cprex/ui/streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["/usr/bin/supervisord"]
