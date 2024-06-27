@@ -55,7 +55,7 @@ pip install cprex
 
 This installation is recommended for users who want to customize the pipeline or train some models on their own dataset.
 
-Clone the repository and install the project in your python environment.
+Clone the repository and install the project in your python environment, either using `pip`
 
 ```console
 git clone git@github.com:jonasrenault/cprex.git
@@ -63,7 +63,13 @@ cd cprex
 pip install --editable .
 ```
 
-Any modifications you make to the cprex codebase will be immediatly reflected thanks to the `--editable` option.
+or [poetry](https://python-poetry.org/)
+
+```console
+git clone git@github.com:jonasrenault/cprex.git
+cd cprex
+poetry install
+```
 
 ### Install grobid and models
 
@@ -112,3 +118,39 @@ or directly install it with pip by specifying the model's url
 ```console
 pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
 ```
+
+## Run CPREx
+
+### Using Docker
+
+The easiest way to run CPREx is to use [Docker](https://docs.docker.com/) to start a container running CPREx. Refer to the [official documentation](https://docs.docker.com/get-docker/) for instructions on how to install Docker on your system.
+
+You can then pull the CPREx image from github's container registry with
+
+```console
+docker pull ghcr.io/jonasrenault/cprex:latest
+```
+
+You can start a container running this image with
+
+```console
+docker run -t --rm -p 80:8501 ghcr.io/jonasrenault/cprex:latest
+```
+
+Note that the image is only compiled for amd64 architectures. Add `--platform=linux/amd64` if running on an ARM architecture.
+
+Once the container is started, you can access CPREx's streamlit UI by opening a browser at the [http://localhost](http://localhost) URL.
+
+### Run streamlit locally
+
+CPREx provides a User Interface built with [streamlit](https://streamlit.io/). The UI lets you upload a PDF file and see the results of running CPREx on it. If you've cloned the CPREx repository locally and installed the projet in a python environment, you can run the UI by executing the following command, in the python environment and from CPREx's root directory
+
+```console
+streamlit run cprex/ui/streamlit.py
+```
+
+This will start a web server exposing the UI at [http://localhost:8501](http://localhost:8501). Note that for CPREx's pipeline to work, you must have installed the models with the `cprex install-models` command, and started the grobid services with `cprex start-grobid`.
+
+### Notebook examples
+
+Notebook examples showing how to use CPREx directly in a Python script are available in the [notebooks](./notebooks/) directory. To run the notebooks, install [jupyterlab](https://jupyter.org/install) in your Python environment, start it with `jupyter lab`, and open one of the example notebooks. Note that for CPREx's pipeline to work, you must have installed the models with the `cprex install-models` command, and started the grobid services with `cprex start-grobid`.
