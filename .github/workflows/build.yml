@@ -1,17 +1,14 @@
 name: Build
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the main branch
   push:
     branches:
       - main
+    tags:
+      - "v*.*.*"
   pull_request:
     branches:
       - main
-
-env: # environment variables (available in any part of the action)
-  PYTHON_VERSION: 3.11
 
 jobs:
   build_push:
@@ -20,19 +17,20 @@ jobs:
     steps:
       - name: Create more disk space
         run: sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      # - name: Maximize build space
+      #   uses: easimon/maximize-build-space@master
+      #   with:
+      #     root-reserve-mb: 30720 # 30G
+      #     remove-dotnet: "true"
+      #     remove-android: "true"
+      #     remove-haskell: "true"
+      #     remove-codeql: "true"
+      # remove-docker-images: "true"
 
-      - name: Git checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Free space log
+        run: |
+          echo "Free space:"
+          df -h
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -40,21 +38,32 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: .
-          push: true
+          push: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Image digest
         run: echo ${{ steps.push.outputs.digest }}
 
-    #   - name: Generate artifact attestation
-    #     uses: actions/attest-build-provenance@v1
-    #     with:
-    #       subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
-    #       subject-digest: ${{ steps.push.outputs.digest }}
-    #       push-to-registry: true
+      - name: Generate artifact attestation
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

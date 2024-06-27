@@ -30,8 +30,9 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "poetry"
 
-      - name: Check Poetry File
-        run: poetry check
+      # disabled because of https://github.com/python-poetry/poetry/issues/9436
+      # - name: Check Poetry File
+      #   run: poetry check
 
       - name: Check lock file
         run: poetry lock --check

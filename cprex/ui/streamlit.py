@@ -4,6 +4,8 @@ from spacy.tokens import Doc
 from cprex.displacy.render import render
 from cprex.parser.pdf_parser import Article
 from cprex.ui.utils import (
+    check_models,
+    check_start_grobid,
     count_entities,
     display_entity_values,
     display_relation,
@@ -22,15 +24,13 @@ st.set_page_config(
 
 # Set some custom style
 st.markdown(
-    """
-<style>
+    """<style>
     div[data-testid="stSidebarContent"]
     div[data-testid="stVerticalBlockBorderWrapper"]
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white;
     }
-</style>
-            """,
+    </style>""",
     unsafe_allow_html=True,
 )
 
@@ -71,6 +71,14 @@ pdf_url = st.text_input(
 )
 
 submit = st.button("Submit !")
+
+###############################
+### Make sure models are downloaded and grobid is running.
+### These functions are cached with st, so should only run once
+### on startup
+###############################
+check_models()
+check_start_grobid()
 
 
 def display_article(article: Article, docs: list[Doc]):
