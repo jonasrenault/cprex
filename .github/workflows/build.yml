@@ -10,9 +10,6 @@ on:
     branches:
       - main
 
-env: # environment variables (available in any part of the action)
-  PYTHON_VERSION: 3.11
-
 jobs:
   build_push:
     name: Build docker image and push to ghcr.io
@@ -35,8 +32,6 @@ jobs:
           echo "Free space:"
           df -h
 
-      # - name: Git checkout
-      #   uses: actions/checkout@v4
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
@@ -47,8 +42,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GHCR
-        # if: github.event_name != 'pull_request'
-        # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -59,23 +53,16 @@ jobs:
         id: push
         uses: docker/build-push-action@v6
         with:
-          # push: ${{ github.event_name != 'pull_request' }}
-          push: true
+          push: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
           tags: ${{ steps.meta.outputs.tags }}
-          # tags: cprex:latest
           labels: ${{ steps.meta.outputs.labels }}
-          # load: true
 
       - name: Image digest
         run: echo ${{ steps.push.outputs.digest }}
-        # run: |
-        #   echo ${{ steps.push.outputs.digest }}
-        #   docker image inspect cprex:latest
-        #   docker history cprex:latest
 
-    #   - name: Generate artifact attestation
-    #     uses: actions/attest-build-provenance@v1
-    #     with:
-    #       subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
-    #       subject-digest: ${{ steps.push.outputs.digest }}
-    #       push-to-registry: true
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

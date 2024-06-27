@@ -48,6 +48,7 @@ RUN rm -rf grobid-home/pdfalto/win-*
 RUN rm -rf grobid-home/lib/lin-32
 RUN rm -rf grobid-home/lib/win-*
 RUN rm -rf grobid-home/lib/mac-64
+RUN rm -rf grobid-home/lib/mac_arm-64
 
 ### build grobid
 RUN ./gradlew clean assemble --no-daemon --info --stacktrace
@@ -94,7 +95,7 @@ RUN rm -rf /opt/cprex/grobid/grobid-home/models/*-BERT_CRF*
 # build python app
 # ----------------
 FROM python:3.11-slim AS app-builder
-
+ARG TARGETPLATFORM
 ENV PATH="$PATH:/root/.local/bin"
 
 WORKDIR /cprex
@@ -110,7 +111,9 @@ ADD cprex /cprex/cprex
 ### Only install cpu version of pytorch in docker image.
 ### installing GPU version of pytorch for linux/amd64 image leads to image size of > 5Gb.
 ### see https://github.com/pytorch/pytorch/issues/17621
-RUN sed -i 's/\(.*\)platform="linux", source="pypi"}/\1platform="linux", source="torchcpu"}/g' pyproject.toml
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        sed -i 's/\(.*\)platform="linux", source="pypi"}/\1platform="linux", source="torchcpu"}/g' pyproject.toml; \
+    fi
 RUN poetry install --no-interaction --no-ansi --without dev --with models
 
 # -------------------
