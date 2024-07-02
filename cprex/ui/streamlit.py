@@ -1,3 +1,5 @@
+from typing import Any
+
 import streamlit as st
 from spacy.tokens import Doc
 
@@ -7,11 +9,13 @@ from cprex.ui.utils import (
     check_grobid,
     check_models,
     count_entities,
+    display_entity_information,
     display_entity_values,
     display_relation,
     get_html,
     get_pdf_content_from_url,
     get_relations,
+    link_entities,
     process_pdf,
     run_pipeline,
 )
@@ -29,6 +33,28 @@ st.markdown(
     div[data-testid="stVerticalBlockBorderWrapper"]
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white;
+    }
+
+    div[data-testid="stSidebarContent"]
+    div[data-testid="stVerticalBlockBorderWrapper"]
+    div[data-testid="stVerticalBlockBorderWrapper"]
+    div[data-testid="stVerticalBlockBorderWrapper"]
+    div[data-testid="stVerticalBlock"] {
+        gap: .1rem;
+    }
+
+    div[data-testid="stSidebarContent"]
+    div[data-testid="stVerticalBlockBorderWrapper"]
+    div[data-testid="stVerticalBlockBorderWrapper"]
+    div[data-testid="stVerticalBlockBorderWrapper"]
+    div[data-testid="stVerticalBlock"]
+    button[kind="secondary"] {
+        padding: 0;
+        justify-content: normal;
+        border: 0;
+        color: #0468c9;
+        background-color: transparent;
+        min-height: 1.5rem;
     }
     </style>""",
     unsafe_allow_html=True,
@@ -70,7 +96,15 @@ pdf_url = st.text_input(
     "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10343900/pdf/molecules-28-05029.pdf",
 )
 
-submit = st.button("Submit !")
+if "submit" not in st.session_state:
+    st.session_state.submit = False
+
+
+def submit_remote_file():
+    st.session_state.submit = True
+
+
+st.button("Submit !", on_click=submit_remote_file)
 
 ###############################
 ### Make sure models are downloaded and grobid is running.
@@ -102,17 +136,25 @@ def display_article(article: Article, docs: list[Doc]):
         st.write(get_html(html), unsafe_allow_html=True)
 
 
-def display_filters(docs: list[Doc]):
+def display_filters(
+    docs: list[Doc],
+    relations: list[dict[str, Any]],
+    properties: dict[str, dict[str, Any]],
+):
     chems, props, qtys = count_entities(docs)
-    tuples = get_relations(docs)
     with st.sidebar:
         st.markdown("**Entities**")
-        display_entity_values(chems, "pink", "Chemicals")
+        display_entity_values(chems, "pink", "Chemicals", properties=properties)
+        if (
+            "selected_entity" in st.session_state
+            and st.session_state.selected_entity is not None
+        ):
+            display_entity_information(properties)
         display_entity_values(props, "#feca74", "Properties")
         display_entity_values(qtys, "#7aecec", "Values")
 
         st.markdown("**Relations**")
-        for rel in tuples:
+        for rel in relations:
             display_relation(rel)
 
 
@@ -121,9 +163,11 @@ def parse_pdf_and_display_results(pdf: bytes, segment_sentences: bool = False):
         with st.spinner("Your file is being processed..."):
             article = process_pdf(pdf, segment_sentences)
             docs = run_pipeline(article)
+            relations = get_relations(tuple(docs))
+            properties = link_entities(tuple(docs))
 
         display_article(article, docs)
-        display_filters(docs)
+        display_filters(docs, relations, properties)
     except Exception as e:
         st.warning(
             """
@@ -136,8 +180,7 @@ def parse_pdf_and_display_results(pdf: bytes, segment_sentences: bool = False):
 
 if uploaded_file is not None:
     parse_pdf_and_display_results(uploaded_file.getvalue())
-
-elif submit and pdf_url:
+elif st.session_state.submit and pdf_url:
     parse_pdf_and_display_results(get_pdf_content_from_url(pdf_url))
 else:
     st.stop()

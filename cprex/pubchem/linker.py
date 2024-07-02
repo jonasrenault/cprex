@@ -161,12 +161,3 @@ def link_compounds(docs: Iterable[Doc], min_occurences: int = 3):
                 ent._.props = properties[ent.text]
 
     return properties
-
-
-if __name__ == "__main__":
-    linker = PubChemEntityLinker()
-    print(
-        linker.link(
-            "2,5-bis(4-hydroxy-3-methoxybenzylidene)cyclopentanone",
-        )
-    )

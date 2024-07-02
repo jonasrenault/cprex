@@ -1,16 +1,19 @@
 from collections import Counter
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 
 import requests
 import streamlit as st
-from spacy.tokens import Doc, Span
+from spacy.tokens import Doc
+from streamlit_extras.grid import grid
 
 from cprex.commands import DEFAULT_INSTALL_DIR
-from cprex.corpus.tuples import ChemPropValueRelation, extract_tuple_relations
+from cprex.corpus.tuples import extract_tuple_relations
 from cprex.ner.chem_ner import ner_article
 from cprex.parser.pdf_parser import Article, parse_pdf_to_dict
 from cprex.pipeline import get_pipeline
+from cprex.pubchem.linker import link_compounds
 
 GROBID_QTY_ISALIVE_URL = "http://localhost:8060/service/isalive"
 GROBID_ISALIVE_URL = "http://localhost:8070/api/isalive"
@@ -71,6 +74,26 @@ def run_pipeline(article: Article) -> list[Doc]:
     return docs
 
 
+@st.cache_data(hash_funcs={"spacy.tokens.doc.Doc": lambda doc: doc.to_bytes()})
+def link_entities(docs: tuple[Doc]) -> dict[str, dict[str, Any]]:
+    properties = link_compounds(docs, min_occurences=3)
+    return properties
+
+
+@st.cache_data(hash_funcs={"spacy.tokens.doc.Doc": lambda doc: doc.to_bytes()})
+def get_relations(docs: tuple[Doc], triplets_only: bool = False) -> list[dict[str, Any]]:
+    res = []
+    for doc in docs:
+        tuples = extract_tuple_relations(doc)
+        for tuple_ in tuples:
+            if tuple_.chemicals is not None and (
+                not triplets_only or tuple_.properties is not None
+            ):
+                res.append(tuple_.to_dict())
+
+    return res
+
+
 @st.cache_data
 def get_pdf_content_from_url(pdf_url: str) -> bytes:
     headers = requests.utils.default_headers()
@@ -92,57 +115,68 @@ def get_html(html: str) -> str:
     return WRAPPER.format(html)
 
 
-def display_entity_values(counts: Counter, color: str, label: str, height: int = 200):
+def set_selected_entity(entity: str):
+    st.session_state.selected_entity = entity
+
+
+def display_entity_values(
+    counts: Counter,
+    color: str,
+    label: str,
+    height: int = 200,
+    properties: dict[str, dict[str, Any]] | None = None,
+):
     with st.container(height=height):
         st.write(
-            f"<span style='color: {color}; font-weight: bold;'>{label}</span>"
-            f"<span style='float:right; font-weight: bold;'>{counts.total()}</span>",
+            f"<div><span style='color: {color}; font-weight: bold;'>{label}</span>"
+            f"<span style='float:right; font-weight: bold;'>{counts.total()}</span>"
+            "</div>",
             unsafe_allow_html=True,
         )
-        values = "".join(
-            [
-                f"{key} <span style='float:right'>{value}</span><br>"
-                for key, value in counts.most_common()
-            ]
-        )
-        st.markdown(values, unsafe_allow_html=True)
+        res_grid = grid([0.9, 0.1], vertical_align="center")
+        for entity, count in counts.most_common():
+            if properties is not None and entity in properties:
+                res_grid.button(
+                    entity,
+                    use_container_width=True,
+                    on_click=set_selected_entity,
+                    args=[entity],
+                )
+            else:
+                res_grid.write(entity)
+            res_grid.write(
+                f"<span style='float:right'>{count}</span>", unsafe_allow_html=True
+            )
 
 
-def format_entity_value(chem: Span, color: str):
+def format_entity_value(text: str, color: str):
     return (
         f"<span style='background-color: {color}; padding: 0.25em;"
         "border-radius: 0.5em;display:inline-block;"
-        f"margin: .25em .25em 0;'>{chem.text}</span>"
+        f"margin: .25em .25em 0;'>{text}</span>"
     )
 
 
-def display_relation(rel: ChemPropValueRelation):
+def display_relation(rel: dict[str, Any]):
     tags = []
-    if rel.chemicals is not None:
-        for chem in rel.chemicals:
-            tags.append(format_entity_value(chem, "pink"))
-    if rel.properties is not None:
-        for prop in rel.properties:
-            tags.append(format_entity_value(prop, "#feca74"))
-    tags.append(format_entity_value(rel.value, "#7aecec"))
+    if "chemicals" in rel:
+        for chem in rel["chemicals"]:
+            tags.append(format_entity_value(chem["text"], "pink"))
+    if "properties" in rel:
+        for prop in rel["properties"]:
+            tags.append(format_entity_value(prop["text"], "#feca74"))
+    tags.append(format_entity_value(rel["value"]["text"], "#7aecec"))
 
     with st.container(border=True):
         st.write("".join(tags), unsafe_allow_html=True)
 
 
-def get_relations(
-    docs: list[Doc], triplets_only: bool = False
-) -> list[ChemPropValueRelation]:
-    res = []
-    for doc in docs:
-        tuples = extract_tuple_relations(doc)
-        for tuple_ in tuples:
-            if tuple_.chemicals is not None and (
-                not triplets_only or tuple_.properties is not None
-            ):
-                res.append(tuple_)
-
-    return res
+def display_entity_information(properties: dict[str, dict[str, Any]]):
+    entity = st.session_state.selected_entity
+    props = properties[entity]
+    with st.container(height=150):
+        st.markdown(f"**{entity}**")
+        st.write(props)
 
 
 def count_entities(docs: list[Doc]) -> tuple[Counter, Counter, Counter]:
