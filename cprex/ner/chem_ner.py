@@ -11,6 +11,7 @@ from transformers import (  # type: ignore
 )
 
 from cprex.parser.pdf_parser import Article
+from cprex.pubchem.linker import link_compounds
 
 
 @dataclass
@@ -149,22 +150,19 @@ def get_bert_pipeline(model_directory: str) -> Pipeline:
     return nlp
 
 
-def ner_article(article: Article, nlp: Language) -> list[Doc]:
+def ner_article(article: Article, nlp: Language, pubchem_link: bool = False) -> list[Doc]:
     """
     Use the given nlp spacy pipeline to process
     an article into a list of docs.
 
-    Parameters
-    ----------
-    article : Article
-        the article
-    nlp : Language
-        the pipeline
+    Args:
+        article (Article): the article
+        nlp (Language): the pipeline
+        pubchem_link (bool, optional): perform entity linking against pubchem.
+            Defaults to False.
 
-    Returns
-    -------
-    list[Doc]
-        List of processed docs
+    Returns:
+        list[Doc]: List of processed docs
     """
     # Build a list of text tuples (see. https://spacy.io/usage/processing-pipelines#processing)
     text_tuples: list[tuple[str, dict[str, str | None]]] = []
@@ -196,4 +194,7 @@ def ner_article(article: Article, nlp: Language) -> list[Doc]:
         doc._.doi = article.doi
         doc._.section = ctxt["section"]
         results.append(doc)
+
+    if pubchem_link:
+        link_compounds(results, min_occurences=3)
     return results

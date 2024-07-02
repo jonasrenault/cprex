@@ -2,7 +2,7 @@ from pathlib import Path
 
 import spacy
 from spacy.language import Language
-from spacy.tokens import Doc
+from spacy.tokens import Doc, Span
 
 # These imports are required for Spacy to be able to load
 # the custom components
@@ -67,6 +67,8 @@ def get_pipeline(
         Doc.set_extension("section", default=None)
     if not Doc.has_extension("rel"):
         Doc.set_extension("rel", default={})
+    if not Span.has_extension("props"):
+        Span.set_extension("props", default={})
 
     if enable_rel_pipeline:
         rel_model = spacy.load(rel_model_directory)
