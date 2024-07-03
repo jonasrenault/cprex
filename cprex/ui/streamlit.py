@@ -20,6 +20,25 @@ from cprex.ui.utils import (
     run_pipeline,
 )
 
+# Define session state and callbacks for file submission
+if "url_submited" not in st.session_state:
+    st.session_state.url_submited = False
+if "file_uploaded" not in st.session_state:
+    st.session_state.file_uploaded = False
+
+
+def on_submit_local_file():
+    st.session_state.file_uploaded = True
+    st.session_state.url_submited = False
+    st.session_state.selected_entity = None
+
+
+def on_submit_remote_file():
+    st.session_state.url_submited = True
+    st.session_state.file_uploaded = False
+    st.session_state.selected_entity = None
+
+
 # Set page title
 st.set_page_config(
     page_title="CPREx - Chemical Properties Relation Extraction",
@@ -87,8 +106,7 @@ with st.expander("How to use it"):
 
 
 uploaded_file = st.file_uploader(
-    "Choose a file to upload",
-    type="pdf",
+    "Choose a file to upload", type="pdf", on_change=on_submit_local_file
 )
 
 pdf_url = st.text_input(
@@ -96,15 +114,7 @@ pdf_url = st.text_input(
     "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10343900/pdf/molecules-28-05029.pdf",
 )
 
-if "submit" not in st.session_state:
-    st.session_state.submit = False
-
-
-def submit_remote_file():
-    st.session_state.submit = True
-
-
-st.button("Submit !", on_click=submit_remote_file)
+st.button("Submit !", on_click=on_submit_remote_file)
 
 ###############################
 ### Make sure models are downloaded and grobid is running.
@@ -144,6 +154,10 @@ def display_filters(
     chems, props, qtys = count_entities(docs)
     with st.sidebar:
         st.markdown("**Entities**")
+        st.caption(
+            "Linked entities are displayed in blue. "
+            "Click on one to display information extracted from PubChem."
+        )
         display_entity_values(chems, "pink", "Chemicals", properties=properties)
         if (
             "selected_entity" in st.session_state
@@ -178,9 +192,9 @@ def parse_pdf_and_display_results(pdf: bytes, segment_sentences: bool = False):
         raise e
 
 
-if uploaded_file is not None:
+if st.session_state.file_uploaded and uploaded_file is not None:
     parse_pdf_and_display_results(uploaded_file.getvalue())
-elif st.session_state.submit and pdf_url:
+elif st.session_state.url_submited and pdf_url:
     parse_pdf_and_display_results(get_pdf_content_from_url(pdf_url))
 else:
     st.stop()
