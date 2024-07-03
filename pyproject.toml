@@ -98,6 +98,7 @@ select = [
 [tool.mypy]
 files = ["cprex"]
 exclude = ["cprex/parser/"]
+disable_error_code = ["import-untyped"]
 
 [[tool.mypy.overrides]]
 module = "cprex.parser.*"

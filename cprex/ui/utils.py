@@ -1,4 +1,5 @@
 from collections import Counter
+from collections.abc import Iterable
 from io import BytesIO
 from pathlib import Path
 from typing import Any
@@ -75,13 +76,15 @@ def run_pipeline(article: Article) -> list[Doc]:
 
 
 @st.cache_data(hash_funcs={"spacy.tokens.doc.Doc": lambda doc: doc.to_bytes()})
-def link_entities(docs: tuple[Doc]) -> dict[str, dict[str, Any]]:
+def link_entities(docs: Iterable[Doc]) -> dict[str, dict[str, Any]]:
     properties = link_compounds(docs, min_occurences=3)
     return properties
 
 
 @st.cache_data(hash_funcs={"spacy.tokens.doc.Doc": lambda doc: doc.to_bytes()})
-def get_relations(docs: tuple[Doc], triplets_only: bool = False) -> list[dict[str, Any]]:
+def get_relations(
+    docs: Iterable[Doc], triplets_only: bool = False
+) -> list[dict[str, Any]]:
     res = []
     for doc in docs:
         tuples = extract_tuple_relations(doc)
