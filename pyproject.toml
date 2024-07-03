@@ -29,6 +29,7 @@ scikit-learn = "^1.4.1.post1"
 grobid-quantities-client = "^0.4.0"
 streamlit = "^1.35.0"
 numpy = "^1.26.4"
+streamlit-extras = "^0.4.3"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -97,6 +98,7 @@ select = [
 [tool.mypy]
 files = ["cprex"]
 exclude = ["cprex/parser/"]
+disable_error_code = ["import-untyped"]
 
 [[tool.mypy.overrides]]
 module = "cprex.parser.*"
