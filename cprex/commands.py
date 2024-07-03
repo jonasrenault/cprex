@@ -158,23 +158,31 @@ def install_grobid(grobid_directory: str, version: str = "0.8.0") -> None:
         download_and_extract_archive(url, zipped_file, grobid_directory, is_zip=True)
         click.echo(f"Downloaded Grobid ({version}) to {grobid_directory}")
 
-    click.echo("Cloning grobid-quantities to grobid-quantites directory")
-    subprocess.run(
-        [
-            "git",
-            "clone",
-            "--single-branch",
-            "--branch",
-            "chemical-units",
-            "https://github.com/jonasrenault/grobid-quantities.git",
-        ],
-        cwd=grobid_directory,
-    )
+    qty_dir = Path(grobid_directory) / "grobid-quantities"
+    if qty_dir.is_dir():
+        click.echo(
+            f"grobid-quantities directory {qty_dir} already exists. "
+            "grobid-quantities will not be downloaded."
+        )
+        click.echo("Run cprex start-grobid to start a Grobid server.")
+    else:
+        click.echo("Cloning grobid-quantities to grobid-quantites directory")
+        subprocess.run(
+            [
+                "git",
+                "clone",
+                "--single-branch",
+                "--branch",
+                "chemical-units",
+                "https://github.com/jonasrenault/grobid-quantities.git",
+            ],
+            cwd=grobid_directory,
+        )
 
-    click.echo("Installing grobid-quantities model")
-    subprocess.run(
-        ["./gradlew", "copyModels"], cwd=grobid_directory + "/grobid-quantities"
-    )
+        click.echo("Installing grobid-quantities model")
+        subprocess.run(
+            ["./gradlew", "copyModels"], cwd=grobid_directory + "/grobid-quantities"
+        )
 
 
 @main.command()
